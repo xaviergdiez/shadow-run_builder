@@ -1,0 +1,64 @@
+:root {
+  /* "The sky above the port was the color of television, tuned to a dead
+     channel." The ground is not black, it is desaturated blue-grey static.
+     Accents are coded to Shadowrun's three planes so color carries meaning
+     instead of decoration:
+       amber  = mundane / meat / nuyen
+       cyan   = Matrix / learned data
+       violet = awakened / grafted chrome
+       steel  = hardware you carry
+       blood  = glitch, wounds, overspend. Used nowhere else. */
+
+  --color-void: #0b0e13;
+  --color-void-deep: #070910;
+  --color-panel: #141922;
+  --color-panel-raised: #1a2028;
+  --color-chrome: #2a323f;
+  --color-chrome-bright: #8a93a6;
+
+  --color-text: #e6eaf2;
+  --color-text-muted: #8a93a6;
+  --color-text-dim: #59626f;
+
+  --color-amber: #f0a82e;
+  --color-amber-dim: #8a6320;
+  --color-cyan: #35d6e5;
+  --color-cyan-dim: #1e7f8a;
+  --color-violet: #a96bff;
+  --color-violet-dim: #64409c;
+  --color-steel: #8a93a6;
+  --color-blood: #ff4d5e;
+
+  /* Spend categories. Referenced by the burn bar and by each step's top edge. */
+  --cat-attributes: var(--color-amber);
+  --cat-skills: var(--color-cyan);
+  --cat-knowledge: var(--color-cyan-dim);
+  --cat-amps: var(--color-violet);
+  --cat-gear: var(--color-steel);
+
+  /* Chakra Petch has clipped corners and a techno cut without falling into
+     the Orbitron cliche. IBM Plex carries the megacorp-issue body copy, and
+     Plex Mono every number, because this whole app is a spending ledger. */
+  --font-display: "Chakra Petch", "IBM Plex Sans", sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --border-hair: 1px solid var(--color-chrome);
+  --radius-sm: 2px;
+  --radius-md: 3px;
+
+  --space-2xs: 3px;
+  --space-xs: 6px;
+  --space-sm: 10px;
+  --space-md: 14px;
+  --space-lg: 20px;
+  --space-xl: 32px;
+
+  --track-tight: 0.02em;
+  --track-label: 0.14em;
+  --track-wide: 0.22em;
+
+  --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 10px 24px rgba(0, 0, 0, 0.45);
+  --glow-amber: 0 0 12px rgba(240, 168, 46, 0.35);
+  --glow-cyan: 0 0 12px rgba(53, 214, 229, 0.3);
+}
