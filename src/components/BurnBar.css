@@ -1,0 +1,118 @@
+.burn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--color-panel);
+  border: var(--border-hair);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-panel);
+}
+
+.burn__track {
+  position: relative;
+  height: 26px;
+  background: var(--color-void-deep);
+  border: 1px solid var(--color-chrome);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.burn__track--over {
+  border-color: var(--color-blood);
+  box-shadow: 0 0 14px rgba(255, 77, 94, 0.35);
+}
+
+.burn__fill {
+  display: flex;
+  height: 100%;
+}
+
+.burn__seg {
+  height: 100%;
+  transition: width 120ms linear;
+}
+
+/* Overspend cannot be shown by a longer bar — the bar is the budget. It shows
+   as the frame breaching instead. */
+.burn__breach {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(255, 77, 94, 0.35) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+.burn__ticks {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to right,
+    transparent 0 calc(10% - 1px),
+    rgba(11, 14, 19, 0.6) calc(10% - 1px) 10%
+  );
+  pointer-events: none;
+}
+
+.burn__readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.burn__figures {
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.burn__figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.burn__value {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.burn__value--good {
+  color: var(--color-amber);
+}
+
+.burn__value--glitch,
+.burn__figure--over .label {
+  color: var(--color-blood);
+}
+
+.burn__value--low {
+  color: var(--color-violet);
+}
+
+.burn__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.burn__legend-item {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.burn__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+}
+
+.burn__legend-value {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}

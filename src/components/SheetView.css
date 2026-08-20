@@ -1,0 +1,308 @@
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-panel);
+  border: var(--border-hair);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-panel);
+}
+
+.sheet__issues {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.sheet__issue {
+  margin: 0;
+  padding: var(--space-xs) var(--space-sm);
+  border-left: 2px solid;
+  font-size: 12px;
+}
+
+.sheet__issue--error {
+  border-color: var(--color-blood);
+  background: rgba(255, 77, 94, 0.08);
+  color: var(--color-blood);
+}
+
+.sheet__issue--warn {
+  border-color: var(--color-amber-dim);
+  background: rgba(240, 168, 46, 0.06);
+  color: var(--color-amber);
+}
+
+.sheet__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--color-amber-dim);
+}
+
+.sheet__name {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: var(--track-tight);
+  text-transform: uppercase;
+}
+
+.sheet__sub {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.sheet__stamp {
+  text-align: right;
+}
+
+.sheet__stamp-value {
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-amber);
+}
+
+.sheet__stamp-sub {
+  margin: 0;
+  font-size: 11px;
+  color: var(--color-text-dim);
+}
+
+.sheet__attrs {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--color-chrome);
+  border: var(--border-hair);
+}
+
+.sheet__attr {
+  padding: var(--space-sm);
+  background: var(--color-void-deep);
+  text-align: center;
+}
+
+.sheet__attr--essence {
+  background: rgba(169, 107, 255, 0.08);
+}
+
+.sheet__attr-value {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.sheet__attr--essence .sheet__attr-value {
+  color: var(--color-violet);
+}
+
+.sheet__cols {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--space-lg);
+}
+
+.sheet__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+.sheet__block-title {
+  margin: 0 0 var(--space-xs);
+  padding-bottom: 2px;
+  border-bottom: var(--border-hair);
+  font-size: 11px;
+  letter-spacing: var(--track-wide);
+  text-transform: uppercase;
+  color: var(--color-cyan);
+}
+
+.sheet__block--boxed {
+  padding: var(--space-sm);
+  background: var(--color-void-deep);
+  border: var(--border-hair);
+  border-radius: var(--radius-sm);
+}
+
+.sheet__empty,
+.sheet__legend {
+  margin: 0;
+  font-size: 11px;
+  color: var(--color-text-dim);
+}
+
+.sheet__prose {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.sheet__table {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+.sheet__thead,
+.sheet__trow {
+  display: grid;
+  gap: var(--space-sm);
+  align-items: baseline;
+  padding: 2px 0;
+}
+
+.sheet__thead {
+  border-bottom: var(--border-hair);
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+}
+
+.sheet__table--skills .sheet__thead,
+.sheet__table--skills .sheet__trow {
+  grid-template-columns: 1fr 46px 40px 40px 34px;
+}
+
+.sheet__table--weapons .sheet__thead,
+.sheet__table--weapons .sheet__trow {
+  grid-template-columns: 1fr 1.2fr;
+}
+
+.sheet__table--wounds .sheet__thead,
+.sheet__table--wounds .sheet__trow {
+  grid-template-columns: 1fr 44px 44px 44px;
+}
+
+.sheet__table--risk .sheet__thead,
+.sheet__table--risk .sheet__trow {
+  grid-template-columns: 26px repeat(4, 1fr);
+}
+
+.sheet__table--skills .sheet__trow > *:not(:first-child),
+.sheet__table--wounds .sheet__trow > *:not(:first-child),
+.sheet__table--weapons .sheet__trow > *:not(:first-child) {
+  text-align: right;
+}
+
+.sheet__skill {
+  border-bottom: 1px dotted var(--color-chrome);
+}
+
+.sheet__trow--main {
+  color: var(--color-text);
+}
+
+.sheet__trow--spec {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+/* A specialization shown only because an amp points Risk Reduction at it: the
+   attribute swap applies, the +2 does not. Dimmed so it never reads as bought. */
+.sheet__trow--unbought {
+  color: var(--color-text-dim);
+  font-style: italic;
+}
+
+.sheet__dp {
+  font-weight: 600;
+  color: var(--color-cyan);
+}
+
+.sheet__amp {
+  padding: var(--space-xs) 0;
+  border-bottom: 1px dotted var(--color-chrome);
+}
+
+.sheet__amp-head {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: space-between;
+}
+
+.sheet__amp-name {
+  font-family: var(--font-display);
+  color: var(--color-violet);
+}
+
+.sheet__amp-nums {
+  font-size: 11px;
+  color: var(--color-text-dim);
+  white-space: nowrap;
+}
+
+.sheet__amp-effects {
+  margin: 2px 0 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.sheet__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.sheet__list li::before {
+  content: "\203A  ";
+  color: var(--color-cyan-dim);
+}
+
+.sheet__list--cues li {
+  font-style: italic;
+}
+
+@media (max-width: 900px) {
+  .sheet__cols {
+    grid-template-columns: 1fr;
+  }
+
+  .sheet__attrs {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media print {
+  .sheet {
+    padding: 0;
+    background: #fff;
+    border: none;
+    box-shadow: none;
+    color: #000;
+  }
+
+  .sheet__attr,
+  .sheet__block--boxed {
+    background: #fff;
+  }
+
+  .sheet__block-title,
+  .sheet__dp,
+  .sheet__amp-name,
+  .sheet__stamp-value,
+  .sheet__attr--essence .sheet__attr-value {
+    color: #000;
+  }
+
+  .sheet__sub,
+  .sheet__prose,
+  .sheet__list,
+  .sheet__amp-effects,
+  .sheet__trow--spec {
+    color: #333;
+  }
+}
