@@ -76,7 +76,16 @@ export default function SheetView({ character, spend }) {
       )}
 
       <header className="sheet__head">
-        <div>
+        {/* The portrait is a header cell rather than a floated image so the
+            name block reflows beside it and the print layout keeps one row. */}
+        {character.avatarV > 0 && (
+          <img
+            className="sheet__portrait"
+            src={`/api/avatar?c=${character.charId}&v=${character.avatarV}`}
+            alt={`Portrait of ${character.identity.streetName || "this runner"}`}
+          />
+        )}
+        <div className="sheet__head-name">
           <p className="label">Street name</p>
           <h1 className="sheet__name">{character.identity.streetName || "Unnamed"}</h1>
           <p className="sheet__sub">

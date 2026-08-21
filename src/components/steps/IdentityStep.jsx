@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { METATYPES, TIERS } from "../../data/rules.js";
 import { LIFESTYLES } from "../../data/catalog.js";
 import { nuyen } from "../../logic/derive.js";
@@ -8,8 +9,31 @@ import "./Steps.css";
 export default function IdentityStep({ character, update, spend }) {
   const { identity, tier } = character;
   const metatype = METATYPES.find((m) => m.id === identity.metatype);
+  const [portrait, setPortrait] = useState({ busy: false, error: null });
 
   const setField = (key, value) => update({ identity: { ...identity, [key]: value } });
+
+  const generatePortrait = async () => {
+    setPortrait({ busy: true, error: null });
+    try {
+      const res = await fetch("/api/generate-avatar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ c: character.charId, identity, keywords: character.keywords }),
+      });
+      // A 404 here means `vite dev` with no functions behind it, not a broken
+      // request. Saying "HTTP 404" sends you looking for a bug that isn't one.
+      if (res.status === 404) {
+        throw new Error("No /api here. Portraits need `vercel dev` (or a deploy) — see README.");
+      }
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
+      update({ avatarV: body.v });
+      setPortrait({ busy: false, error: null });
+    } catch (err) {
+      setPortrait({ busy: false, error: err.message });
+    }
+  };
 
   const setTier = (next) => {
     // Budget follows the tier, but stays its own field so a table can house-rule
@@ -118,6 +142,47 @@ export default function IdentityStep({ character, update, spend }) {
 
       <section className="panel">
         <header className="panel__head">
+          <h2 className="panel__title">Portrait</h2>
+          <p className="panel__hint">
+            The prompt is the sheet's Description column, sent to the image model as written.
+          </p>
+        </header>
+        <div className="portrait">
+          <div className="portrait__frame">
+            {character.avatarV > 0 ? (
+              <img
+                className="portrait__img"
+                src={`/api/avatar?c=${character.charId}&v=${character.avatarV}`}
+                alt={`Portrait of ${identity.streetName || "this runner"}`}
+              />
+            ) : (
+              <span className="portrait__placeholder label">No image</span>
+            )}
+          </div>
+          <div className="portrait__side">
+            <textarea
+              rows={6}
+              value={identity.avatarPrompt}
+              placeholder="Describe the shot: who they are, what they wear, where they are standing, how it is lit."
+              onChange={(e) => setField("avatarPrompt", e.target.value)}
+            />
+            <div className="portrait__actions">
+              <button
+                type="button"
+                className="ghost-button"
+                disabled={portrait.busy}
+                onClick={generatePortrait}
+              >
+                {portrait.busy ? "Generating…" : character.avatarV > 0 ? "Regenerate" : "Generate portrait"}
+              </button>
+              {portrait.error && <span className="field__warn">{portrait.error}</span>}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="panel">
+        <header className="panel__head">
           <h2 className="panel__title">Background</h2>
           <p className="panel__hint">Prints at the bottom of the sheet.</p>
         </header>
@@ -126,6 +191,21 @@ export default function IdentityStep({ character, update, spend }) {
           value={identity.background}
           placeholder="Who you were before the shadows, and what it cost to leave."
           onChange={(e) => setField("background", e.target.value)}
+        />
+      </section>
+
+      <section className="panel">
+        <header className="panel__head">
+          <h2 className="panel__title">Persona</h2>
+          <p className="panel__hint">
+            How to play them, in their own register. Synced from the sheet, never printed.
+          </p>
+        </header>
+        <textarea
+          rows={4}
+          value={identity.persona}
+          placeholder="Act as… speaks in street slang, treats every locked door as an unsecured node."
+          onChange={(e) => setField("persona", e.target.value)}
         />
       </section>
     </div>

@@ -1,228 +1,181 @@
 /**
- * Valten D&D Sheet → Webapp Sync
+ * Shadowrun: Anarchy 2.0 — Sheet → builder sync
  *
- * SETUP (one-time):
- * 1. In your Google Sheet: Extensions → Apps Script → paste this file.
- * 2. In Apps Script: Project Settings → Script Properties → add:
- *      SYNC_SECRET  →  [your sync token — generate it in the app, Character list → Sheet sync]
- *      WEBHOOK_URL  →  [your app URL]/api/sync-sheet
- * 3. Run `createTrigger()` once (select it in the dropdown → Run) to set up
- *    the automatic onChange trigger.
- * 4. Run `syncToApp()` manually once to do an initial push.
+ * SHEET STRUCTURE
+ *   One tab per runner. Row 1 = headers, row 2 = that runner. Extra rows are
+ *   ignored, so you can keep notes below the character.
  *
- * SHEET TAB STRUCTURE  (create these tabs with these exact names / columns):
+ *   Name, Metatype, Concept, Strength, Agility, Logic, Willpower, Charisma,
+ *   Edge, Skills, Knowledge_Skills, Shadow_Amps, Weapons, Armor, Gear,
+ *   Keywords, Dispositions, Cues, Description, Persona
  *
- * ┌─────────────┬──────────────────────────────────────────────────────────────┐
- * │ Tab name    │ Columns (row 1 = headers, data from row 2 on)                │
- * ├─────────────┼──────────────────────────────────────────────────────────────┤
- * │ Profile     │ key  │ value                                                 │
- * │             │ (keys: characterName, nickname, race, gender, background,    │
- * │             │  age, height, weight, eyes, skin, hair, description)        │
- * │             │ description is used as the avatar generation prompt base.   │
- * ├─────────────┼──────────────────────────────────────────────────────────────┤
- * │ Stats       │ key  │ value                                                 │
- * │             │ (keys: str, dex, con, int, wis, cha, proficiency, hpMax,    │
- * │             │  ac, speed, initiative, hitDiceCount, hitDiceDie, classLevel)│
- * ├─────────────┼──────────────────────────────────────────────────────────────┤
- * │ Saves       │ ability  │ proficient (TRUE/FALSE)                           │
- * │             │ (rows: str, dex, con, int, wis, cha)                        │
- * ├─────────────┼──────────────────────────────────────────────────────────────┤
- * │ Skills      │ skill  │ proficient (TRUE/FALSE)                             │
- * ├─────────────┼──────────────────────────────────────────────────────────────┤
- * │ Attacks     │ name  │ atkBonus  │ damage                                   │
- * ├─────────────┼──────────────────────────────────────────────────────────────┤
- * │ Equipment   │ name  │ quantity  │ equipped (TRUE/FALSE)                    │
- * ├─────────────┼──────────────────────────────────────────────────────────────┤
- * │ Currency    │ coin  │ amount                                               │
- * │             │ (rows: cp, ep, pp, gp, sp)                                  │
- * ├─────────────┼──────────────────────────────────────────────────────────────┤
- * │ Features    │ name  │ category  │ description                              │
- * ├─────────────┼──────────────────────────────────────────────────────────────┤
- * │ Spellcasting│ class │ label │ class_name │ ability │ save_dc │             │
- * │             │ attack_bonus │ cantrips (comma-sep) │ always_prepared        │
- * │             │ (rows: one per spellcasting class, e.g. cleric / warlock)   │
- * ├─────────────┼──────────────────────────────────────────────────────────────┤
- * │ Spell Slots │ class  │ level  │ total                                      │
- * ├─────────────┼──────────────────────────────────────────────────────────────┤
- * │ Custom      │ spell_name │ class │ level │ range │ components │ duration │  │
- * │ Spells      │ concentration │ casting_time │ ritual │ description │        │
- * │             │ material │ school │ classes (comma-sep class keys)           │
- * │             │ NOTE: level = "Cantrip", "1"–"9", or "Item" (skip magic     │
- * │             │ items). `class` = primary class; `classes` links to         │
- * │             │ knownByLevel. syncFromApp() rewrites this tab.              │
- * ├─────────────┼──────────────────────────────────────────────────────────────┤
- * │ SpellData   │ spell_name │ level │ range │ components │ duration │         │
- * │             │ concentration │ casting_time │ ritual │ description │        │
- * │             │ material │ school │ classes                                  │
- * │             │ Spell database for the in-app picker.                        │
- * │             │ level = "Cantrip" or "1"–"9" (numeric 0 also accepted).    │
- * └─────────────┴──────────────────────────────────────────────────────────────┘
+ *   Skills            Electronics:5 (Cracking +2); Influence:1
+ *   Knowledge_Skills  semicolon separated
+ *   Shadow_Amps       Name (0.5 Essence) (Rating 2) [effect text]; ...
+ *   Weapons/Armor     Light Pistol (DV 4); Lined Coat (Armor 2)
+ *   Cues              pipe separated, because cues contain commas
+ *   Description       the avatar image prompt, used verbatim
+ *   Persona           the roleplay brief, sheet only
+ *
+ * SETUP (one-time)
+ *   1. Extensions → Apps Script → paste this file → Save.
+ *   2. Reload the spreadsheet. A "Shadowrun" menu appears.
+ *   3. Shadowrun → Set webhook URL, and enter  [your app URL]/api/sync-sheet
+ *   4. Open a runner's tab, then Shadowrun → Set sync token for this tab, and
+ *      paste the token from the app (runner list → Sheet sync).
+ *      Each tab needs its own token: a token addresses one character.
+ *   5. Shadowrun → Sync this tab.
+ *   6. Optional: Shadowrun → Install auto-sync trigger.
  */
 
-var TABS = [
-  "Profile",
-  "Stats",
-  "Saves",
-  "Skills",
-  "Attacks",
-  "Equipment",
-  "Currency",
-  "Features",
-  "Spellcasting",
-  "Spell Slots",
-  "Custom Spells",
-  "SpellData",
-];
+var WEBHOOK_PROP = "WEBHOOK_URL";
 
-// Keys used in the payload match what /api/sync-sheet expects.
-var TAB_KEYS = {
-  "Profile": "profile",
-  "Stats": "stats",
-  "Saves": "saves",
-  "Skills": "skills",
-  "Attacks": "attacks",
-  "Equipment": "equipment",
-  "Currency": "currency",
-  "Features": "features",
-  "Spellcasting": "spellcasting",
-  "Spell Slots": "spellSlots",
-  "Custom Spells": "spells",
-  "SpellData": "spellData",
-};
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu("Shadowrun")
+    .addItem("Sync this tab", "syncActiveTab")
+    .addItem("Sync every tab with a token", "syncAllTabs")
+    .addSeparator()
+    .addItem("Set sync token for this tab", "setTokenForActiveTab")
+    .addItem("Set webhook URL", "setWebhookUrl")
+    .addSeparator()
+    .addItem("Install auto-sync trigger", "createTrigger")
+    .addToUi();
+}
 
-function syncToApp() {
+// A token addresses one character, so it is stored per tab rather than once
+// for the whole workbook.
+function tokenPropName(tabName) {
+  return "TOKEN_" + tabName;
+}
+
+function setTokenForActiveTab() {
+  var ui = SpreadsheetApp.getUi();
+  var tab = SpreadsheetApp.getActiveSheet().getName();
+  var res = ui.prompt(
+    "Sync token for \"" + tab + "\"",
+    "Paste the token from the app: runner list → Sheet sync.",
+    ui.ButtonSet.OK_CANCEL
+  );
+  if (res.getSelectedButton() !== ui.Button.OK) return;
+
+  var token = res.getResponseText().trim();
+  if (!token) return;
+  PropertiesService.getScriptProperties().setProperty(tokenPropName(tab), token);
+  ui.alert("Token saved for \"" + tab + "\".");
+}
+
+function setWebhookUrl() {
+  var ui = SpreadsheetApp.getUi();
   var props = PropertiesService.getScriptProperties();
-  var secret = props.getProperty("SYNC_SECRET");
-  var webhookUrl = props.getProperty("WEBHOOK_URL");
+  var res = ui.prompt(
+    "Webhook URL",
+    "Your app URL plus /api/sync-sheet",
+    ui.ButtonSet.OK_CANCEL
+  );
+  if (res.getSelectedButton() !== ui.Button.OK) return;
 
-  if (!secret || !webhookUrl) {
-    throw new Error("Script Properties missing: set SYNC_SECRET and WEBHOOK_URL");
-  }
+  var url = res.getResponseText().trim();
+  if (!url) return;
+  props.setProperty(WEBHOOK_PROP, url);
+  ui.alert("Webhook URL saved.");
+}
 
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var payload = {};
+// ── Sync ─────────────────────────────────────────────────────────────────────
 
-  TABS.forEach(function (tabName) {
-    var sheet = ss.getSheetByName(tabName);
-    if (!sheet) return; // tab doesn't exist yet — skip gracefully
+function syncActiveTab() {
+  var result = pushTab(SpreadsheetApp.getActiveSheet());
+  SpreadsheetApp.getUi().alert(describe(result));
+}
 
-    var data = sheet.getDataRange().getValues();
-    if (data.length < 2) return; // header only — skip
+function syncAllTabs() {
+  var props = PropertiesService.getScriptProperties();
+  var lines = [];
 
-    var headers = data[0].map(function (h) { return String(h).trim(); });
-    var rows = [];
-
-    for (var i = 1; i < data.length; i++) {
-      var row = data[i];
-      // Skip rows where every cell is empty.
-      if (row.every(function (cell) { return cell === "" || cell === null; })) continue;
-      var obj = {};
-      headers.forEach(function (h, j) {
-        obj[h] = row[j];
-      });
-      rows.push(obj);
-    }
-
-    payload[TAB_KEYS[tabName]] = rows;
+  SpreadsheetApp.getActiveSpreadsheet().getSheets().forEach(function (sheet) {
+    // No token means the tab is not a runner (notes, tables, scratch), so it
+    // is skipped silently rather than reported as a failure.
+    if (!props.getProperty(tokenPropName(sheet.getName()))) return;
+    lines.push(describe(pushTab(sheet)));
   });
 
-  var options = {
+  SpreadsheetApp.getUi().alert(lines.length ? lines.join("\n\n") : "No tab has a sync token yet.");
+}
+
+function pushTab(sheet) {
+  var tab = sheet.getName();
+  var props = PropertiesService.getScriptProperties();
+  var token = props.getProperty(tokenPropName(tab));
+  var webhookUrl = props.getProperty(WEBHOOK_PROP);
+
+  if (!webhookUrl) return { tab: tab, error: "No webhook URL set (Shadowrun → Set webhook URL)." };
+  if (!token) return { tab: tab, error: "No sync token for this tab (Shadowrun → Set sync token for this tab)." };
+
+  var data = sheet.getDataRange().getValues();
+  if (data.length < 2) return { tab: tab, error: "No data row — row 1 is headers, row 2 is the runner." };
+
+  var headers = data[0].map(function (h) { return String(h).trim(); });
+  var row = {};
+  var empty = true;
+  headers.forEach(function (h, j) {
+    if (!h) return;
+    var cell = data[1][j];
+    row[h] = cell === null || cell === undefined ? "" : String(cell);
+    if (row[h] !== "") empty = false;
+  });
+  if (empty) return { tab: tab, error: "Row 2 is empty." };
+
+  var response = UrlFetchApp.fetch(webhookUrl, {
     method: "post",
     contentType: "application/json",
-    payload: JSON.stringify(payload),
-    headers: { Authorization: "Bearer " + secret },
+    payload: JSON.stringify({ row: row }),
+    headers: { Authorization: "Bearer " + token },
     muteHttpExceptions: true,
-  };
+  });
 
-  var response = UrlFetchApp.fetch(webhookUrl, options);
   var code = response.getResponseCode();
+  var text = response.getContentText();
+  if (code !== 200) return { tab: tab, error: "HTTP " + code + " — " + text };
 
-  if (code !== 200) {
-    throw new Error("Sync failed: HTTP " + code + " — " + response.getContentText());
-  }
-
-  Logger.log("Sync OK: " + response.getContentText());
+  var body = JSON.parse(text);
+  Logger.log("Synced " + tab + ": " + text);
+  return { tab: tab, name: body.name, unmapped: body.unmapped || [] };
 }
 
-/**
- * Reads custom spells from the app and writes them into the Custom Spells tab.
- * Run this before syncToApp() to keep the sheet in sync with in-app additions.
- */
-function syncFromApp() {
-  var props = PropertiesService.getScriptProperties();
-  var secret = props.getProperty("SYNC_SECRET");
-  var webhookUrl = props.getProperty("WEBHOOK_URL");
-  var baseUrl = webhookUrl.replace("/api/sync-sheet", "");
+// Anything the builder could not place is shown rather than logged. A skill
+// filed under the wrong parent silently vanishing is exactly the failure this
+// sync would otherwise hide.
+function describe(result) {
+  if (result.error) return "✖ " + result.tab + ": " + result.error;
 
-  var response = UrlFetchApp.fetch(baseUrl + "/api/export-spells", {
-    method: "get",
-    headers: { Authorization: "Bearer " + secret },
-    muteHttpExceptions: true,
+  var head = "✔ " + result.tab + " → " + (result.name || "(unnamed)");
+  if (!result.unmapped.length) return head;
+
+  var lines = result.unmapped.map(function (u) {
+    return "   • " + u.column + ": \"" + u.value + "\" — " + u.reason;
   });
-
-  if (response.getResponseCode() !== 200) {
-    throw new Error("Export failed: HTTP " + response.getResponseCode() + " — " + response.getContentText());
-  }
-
-  var rows = JSON.parse(response.getContentText()).rows;
-
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName("Custom Spells");
-  if (!sheet) sheet = ss.insertSheet("Custom Spells");
-
-  // Safety guard: if the API returned 0 rows but the sheet already has spell
-  // data, abort rather than clearing. A legitimate 0-row result is only
-  // expected when the sheet is also empty (or the user has no custom spells).
-  if (rows.length === 0) {
-    var existingRows = sheet.getLastRow();
-    if (existingRows > 1) {
-      Logger.log("ABORTED: API returned 0 rows but sheet has " + (existingRows - 1) + " existing spells. Not clearing.");
-      return;
-    }
-  }
-
-  sheet.clearContents();
-
-  var headers = ["spell_name", "class", "level", "range", "components", "duration",
-                 "concentration", "casting_time", "ritual", "description", "material",
-                 "school", "classes"];
-  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-
-  if (rows.length > 0) {
-    var values = rows.map(function (r) {
-      return [
-        r.spell_name    || "",
-        r["class"]      || "",   // primary class (first entry from classes)
-        r.level         || "",
-        r.range         || "",
-        r.components    || "",
-        r.duration      || "",
-        "",                      // concentration — not tracked separately
-        r.casting_time  || "",
-        "",                      // ritual — not tracked separately
-        r.description   || "",
-        "",                      // material — not tracked separately
-        r.school        || "",
-        r.classes       || "",
-      ];
-    });
-    sheet.getRange(2, 1, values.length, headers.length).setValues(values);
-  }
-
-  Logger.log("Wrote " + rows.length + " spells from app to Custom Spells tab.");
+  return head + "\n" + result.unmapped.length + " entry(s) not imported:\n" + lines.join("\n");
 }
 
-/** Run once to install a trigger that calls syncToApp() on any sheet change. */
+/** Installs an onChange trigger that pushes every tokened tab. */
 function createTrigger() {
-  // Remove existing triggers for this function to avoid duplicates.
   ScriptApp.getProjectTriggers().forEach(function (t) {
-    if (t.getHandlerFunction() === "syncToApp") ScriptApp.deleteTrigger(t);
+    if (t.getHandlerFunction() === "onSheetChange") ScriptApp.deleteTrigger(t);
   });
 
-  ScriptApp.newTrigger("syncToApp")
+  ScriptApp.newTrigger("onSheetChange")
     .forSpreadsheet(SpreadsheetApp.getActiveSpreadsheet())
     .onChange()
     .create();
 
-  Logger.log("Trigger created.");
+  SpreadsheetApp.getUi().alert("Auto-sync installed. Every edit pushes each tab that has a token.");
+}
+
+// Trigger entry point: no UI, because a trigger has no user to alert.
+function onSheetChange() {
+  var props = PropertiesService.getScriptProperties();
+  SpreadsheetApp.getActiveSpreadsheet().getSheets().forEach(function (sheet) {
+    if (!props.getProperty(tokenPropName(sheet.getName()))) return;
+    Logger.log(describe(pushTab(sheet)));
+  });
 }

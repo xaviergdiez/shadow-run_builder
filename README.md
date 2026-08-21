@@ -9,63 +9,102 @@ and the whole thing prints to PDF for the table.
 
 ---
 
-## Installing over the existing repo
+## Running it
 
-Everything under `api/`, `lib/`, and the three files below is game-agnostic and
-carries over untouched:
+```
+npm install
+npm run dev          # http://localhost:5173
+```
 
-| Keep as-is | Why |
+`npm run dev` is standalone. There is no `/api` behind Vite, so sign-in is
+stubbed, runners live in `localStorage`, and a banner on the runner list says
+so. Everything in the six steps and the sheet works.
+
+For the real stack — Google sign-in, Upstash-backed characters, sheet sync,
+portrait generation — copy `.env.example` to `.env.local`, fill it in, and run
+`vercel dev`. The Google authorized redirect URI is `<app URL>/api/auth/callback`.
+
+```
+node src/logic/importSheet.test.js    # the sheet parser, asserts only
+```
+
+### Layout
+
+| | |
 |---|---|
-| `api/*`, `lib/*` | auth, storage, characters, Stripe, sheet sync. None of it knows what game it is storing. |
-| `src/main.jsx` | hash router and auth gate |
-| `src/Login.jsx` | sign-in screen |
-| `src/CharacterList.jsx` | character list, sync token, delete |
-| `src/hooks/*` | `usePersistedState`, `useMediaQuery` |
+| `api/`, `lib/` | auth, storage, characters, sheet sync, avatars. Game-agnostic apart from `sync-sheet.js`. |
+| `src/data/` | `rules.js` costs and tables, `catalog.js` amps and gear, `character.js` seeds |
+| `src/logic/` | `derive.js` spend and dice pools, `importSheet.js` sheet parser |
+| `src/components/steps/` | the six creation steps |
 
-Replace or add these:
+State is split across thirteen `sheet:<cid>:` keys rather than one blob, so
+adding a field later merges over an old save instead of overwriting it. Anarchy
+runners and D&D characters can share an account without colliding.
+
+---
+
+## Sheet sync
+
+One Google Sheet tab per runner. Row 1 is headers, row 2 is the character:
 
 ```
-index.html                      font pairing and title
-src/App.jsx                     step orchestration
-src/App.css
-src/Home.css                    restyled character list and login
-src/styles/tokens.css           palette, type, spacing
-src/styles/global.css
-src/data/rules.js               costs, tiers, attributes, skills, metatypes, risk table
-src/data/catalog.js             Shadow Amp and gear catalogs
-src/data/character.js           seed shape and persona suggestions
-src/logic/derive.js             spend, dice pools, thresholds, Essence, RR, validation
-src/components/BurnBar.{jsx,css}
-src/components/StepNav.{jsx,css}
-src/components/SheetView.{jsx,css}
-src/components/ui/Panel.{jsx,css}
-src/components/ui/RatingTrack.{jsx,css}
-src/components/steps/*.jsx
-src/components/steps/Steps.css
+Name, Metatype, Concept, Strength, Agility, Logic, Willpower, Charisma, Edge,
+Skills, Knowledge_Skills, Shadow_Amps, Weapons, Armor, Gear, Keywords,
+Dispositions, Cues, Description, Persona
 ```
 
-Delete the old sheet components (`AbilitiesPanel`, `CombatPanel`,
-`SpellsPanel`, `EquipmentPanel`, `FeaturesPanel`, `BackgroundPanel`, `Header`,
-`SpellPicker`, `SpellRow`, `MagicItemCard`, `cards/`, `layout/`, `ui/`) and the
-old `src/data/{character,spells,feats,magicItems}.js`.
+| Column | Format |
+|---|---|
+| `Skills` | `Electronics:5 (Cracking +2); Influence:1` — semicolon separated |
+| `Shadow_Amps` | `Name (0.5 Essence) (Rating 2) [effect text]; ...` |
+| `Weapons` / `Armor` / `Gear` | `Light Pistol (DV 4); Lined Coat (Armor 2)` |
+| `Cues` | pipe separated, because cues contain commas |
+| `Description` | the portrait prompt, sent to the image model verbatim |
+| `Persona` | the roleplay brief. Stored, never printed. |
 
-Two API files reference D&D concepts and need attention if you keep them:
-`api/sync-sheet.js` parses Profile / Stats / Saves / Skills / Attacks tabs, and
-`api/generate-avatar.js` builds a fantasy prompt from `classLevel`. Neither is
-imported by this build. Delete them or rewrite them, and note that deleting
-frees two of Vercel Hobby's twelve function slots.
+Paste `apps-script.js` into Extensions &rarr; Apps Script, reload, then use the
+**Shadowrun** menu: set the webhook URL once, then a sync token per tab (each
+token addresses one character — mint them in the app, runner list &rarr; Sheet
+sync).
 
-`package.json` and `vite.config.js` need no changes. `npm run dev` works as
-before.
+A sync **replaces** skills, specializations, amps and gear, and leaves tier,
+budget and step alone — the sheet has no column for those.
 
-### State migration
+### What does not import silently
 
-There is none, and none is needed. Anarchy characters live under the same
-`sheet:<cid>:` prefix but different keys (`attributes`, `skills`, `amps`, `gear`,
-`keywords`, and so on), so an existing D&D character and a new runner can sit in
-the same account without colliding. State is split across twelve keys rather
-than one blob, so adding a field later merges over an old save instead of
-overwriting it.
+The sheet's skill model is not `rules.js`'s. `Electronics:5 (Cracking +2)` files
+Cracking as an Electronics specialization; `rules.js` has Cracking as a
+top-level skill with its own specializations. Anything that cannot be placed
+comes back in the sync response and the Apps Script shows it:
+
+```
+✔ Count_Zero → Count Zero
+3 entry(s) not imported:
+   • Skills: "Electronics (Cracking)" — specialization not listed for that skill
+```
+
+Unmatched specializations are dropped rather than imported, because `SheetView`
+prints a `+2` beside every owned specialization and `dicePool` only grants it
+for one `rules.js` knows — importing the name would print a bonus the dice pool
+beside it does not include. Fix the sheet, or add the specialization to
+`rules.js`.
+
+Amp and gear prices are **not** in the sheet. Catalog name matches bring a
+price; everything else lands at 0 for you to fill in, because a guessed price
+would quietly move the budget bar.
+
+---
+
+## Portraits
+
+`Description` is used as the image prompt as written, with framing appended.
+Runners built in the app instead of synced get a prompt assembled from metatype,
+concept and keywords. Generation is Gemini, downscaled to 768px JPEG before
+storage (raw PNGs base64-encode past Upstash's 1MB cap), and the image lands in
+the sheet header and prints with it.
+
+Unmetered on purpose: the D&D build gated this behind Stripe credits, this one
+has no Stripe and the endpoint is already behind sign-in.
 
 ---
 
@@ -170,6 +209,10 @@ black-on-white.
 
 ## Still to do
 
+- Reconcile the sheet's skill model with `rules.js`. Count Zero and Fox between
+  them have three specializations filed under the wrong parent skill (Cracking
+  and Matrix Sneaking under Electronics/Stealth, Matrix under Perception).
+  Either move them in the sheet or widen the specialization lists.
 - Confirm the assumed amp and gear costs against pp. 58 to 61 and 136 to 160.
 - Confirm the skill list. It was assembled from Echo's sheet, the NPC blocks and
   skills named in rules text, since the skills table on pp. 52 to 54 is not in

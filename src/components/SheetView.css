@@ -39,9 +39,26 @@
   flex-wrap: wrap;
   gap: var(--space-md);
   align-items: flex-start;
-  justify-content: space-between;
   padding-bottom: var(--space-sm);
   border-bottom: 2px solid var(--color-amber-dim);
+}
+
+/* Fixed height, auto width: portraits come back portrait-orientation but the
+   model is not strict about it, so the header row is what stays constant. */
+.sheet__portrait {
+  height: 104px;
+  width: auto;
+  max-width: 104px;
+  object-fit: cover;
+  border: 1px solid var(--color-chrome);
+  border-radius: var(--radius-sm);
+}
+
+/* Takes the slack so the build stamp stays hard right whether or not there is
+   a portrait. */
+.sheet__head-name {
+  flex: 1;
+  min-width: 200px;
 }
 
 .sheet__name {

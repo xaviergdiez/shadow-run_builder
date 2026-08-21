@@ -43,7 +43,7 @@ export default async function handler(req, res) {
     if (!entry) return res.status(404).json({ error: "unknown_character" });
     user.chars = user.chars.filter((ch) => ch.id !== cid);
     await saveUser(uid, user);
-    const keys = ["state", "config", "spelldb", "avatar"].map((p) => charKey(uid, cid, p));
+    const keys = ["state", "avatar"].map((p) => charKey(uid, cid, p));
     if (entry.syncToken) await redis.del(`synctoken:${entry.syncToken}`);
     await deleteData(...keys);
     return res.status(200).json({ ok: true });

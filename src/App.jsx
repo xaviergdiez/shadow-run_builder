@@ -44,6 +44,9 @@ export default function App({ charId, me }) {
   const [keywords, setKeywords] = usePersistedState("keywords", []);
   const [dispositions, setDispositions] = usePersistedState("dispositions", []);
   const [cues, setCues] = usePersistedState("cues", []);
+  // Bumped when a portrait is generated. Persisted so the sheet knows there is
+  // an image to fetch, and so the URL changes when it is regenerated.
+  const [avatarV, setAvatarV] = usePersistedState("avatarV", 0);
   const [activeStep, setActiveStep] = usePersistedState("activeStep", STEPS[0].id);
 
   const setters = {
@@ -59,6 +62,7 @@ export default function App({ charId, me }) {
     keywords: setKeywords,
     dispositions: setDispositions,
     cues: setCues,
+    avatarV: setAvatarV,
   };
 
   const character = {
@@ -74,6 +78,8 @@ export default function App({ charId, me }) {
     keywords,
     dispositions,
     cues,
+    avatarV,
+    charId,
   };
 
   // One update path for every step: pass a partial character, it lands on the

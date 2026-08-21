@@ -13,6 +13,11 @@ export const identitySeed = {
   concept: "",
   lifestyle: "low",
   background: "",
+  // Both come straight from the Google Sheet when a runner is synced:
+  // avatarPrompt feeds the image generator verbatim, persona is the roleplay
+  // brief and never leaves the sheet.
+  avatarPrompt: "",
+  persona: "",
 };
 
 // Every attribute starts at the mandatory 1 and is charged for from the first

@@ -444,6 +444,52 @@ textarea {
   color: var(--color-text-muted);
 }
 
+/* ---- Portrait ------------------------------------------------------------- */
+
+.portrait {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  align-items: flex-start;
+}
+
+.portrait__frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 168px;
+  height: 224px;
+  flex-shrink: 0;
+  background: var(--color-void-deep);
+  border: var(--border-hair);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.portrait__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.portrait__side {
+  display: flex;
+  flex: 1 1 280px;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.portrait__actions {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.portrait__actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* ---- Catalog cards -------------------------------------------------------- */
 
 .catalog {
