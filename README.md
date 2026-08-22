@@ -38,8 +38,13 @@ node src/logic/importSheet.test.js    # the sheet parser, asserts only
 | `src/components/steps/` | the six creation steps |
 
 State is split across thirteen `sheet:<cid>:` keys rather than one blob, so
-adding a field later merges over an old save instead of overwriting it. Anarchy
-runners and D&D characters can share an account without colliding.
+adding a field later merges over an old save instead of overwriting it.
+
+**Give this app its own Upstash database.** Character *state* is namespaced per
+character and would not collide with the D&D build, but the character *list* is
+not: `lib/auth.js` keeps one flat `chars` array at `user:<uid>`, keyed on the
+Google account alone. Point both apps at one Redis and your runners and your
+D&D characters land in the same list, in both apps.
 
 ---
 
