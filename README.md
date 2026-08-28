@@ -21,8 +21,21 @@ stubbed, runners live in `localStorage`, and a banner on the runner list says
 so. Everything in the six steps and the sheet works.
 
 For the real stack — Google sign-in, Upstash-backed characters, sheet sync,
-portrait generation — copy `.env.example` to `.env.local`, fill it in, and run
-`vercel dev`. The Google authorized redirect URI is `<app URL>/api/auth/callback`.
+portrait generation — run `vercel link`, then `vercel dev`. The Google
+authorized redirect URI is `<app URL>/api/auth/callback`.
+
+**`.env.local` alone is not enough for `vercel dev`.** It injects the linked
+project's environment variables into functions, so a value that exists only in
+`.env.local` reaches the Vite side and nothing else — the function sees
+`undefined`. Anything `api/` reads has to be on the project:
+
+```
+printf '%s' "$VALUE" | vercel env add GEMINI_API_KEY development
+vercel env pull .env.local
+```
+
+The Upstash pair arrives on its own once a Redis store is connected to the
+project (`vercel integration-resource connect <store> <project>`).
 
 ```
 node src/logic/importSheet.test.js    # the sheet parser, asserts only
@@ -40,11 +53,13 @@ node src/logic/importSheet.test.js    # the sheet parser, asserts only
 State is split across thirteen `sheet:<cid>:` keys rather than one blob, so
 adding a field later merges over an old save instead of overwriting it.
 
-**Give this app its own Upstash database.** Character *state* is namespaced per
-character and would not collide with the D&D build, but the character *list* is
-not: `lib/auth.js` keeps one flat `chars` array at `user:<uid>`, keyed on the
-Google account alone. Point both apps at one Redis and your runners and your
-D&D characters land in the same list, in both apps.
+Every key this app writes is prefixed `sr:` (`NS` in `lib/storage.js`), so one
+Upstash database can serve this build and the D&D ones. That prefix is not
+cosmetic: character *state* was always namespaced per cid, but the character
+*list* is not — `lib/auth.js` keeps one flat `chars` array at `user:<uid>`,
+keyed on the Google account alone. Unprefixed, both apps share one list, in
+both apps. The D&D builds keep their unprefixed keys; there is nothing to
+migrate.
 
 ---
 
