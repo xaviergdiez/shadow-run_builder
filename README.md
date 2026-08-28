@@ -21,8 +21,19 @@ stubbed, runners live in `localStorage`, and a banner on the runner list says
 so. Everything in the six steps and the sheet works.
 
 For the real stack — Google sign-in, Upstash-backed characters, sheet sync,
-portrait generation — run `vercel link`, then `vercel dev`. The Google
-authorized redirect URI is `<app URL>/api/auth/callback`.
+portrait generation — run `vercel link`, then `vercel dev` (port 3000).
+
+Sign-in needs **both** of these on the OAuth client, or Google answers
+`Error 400: redirect_uri_mismatch`. The app derives the URI from the request
+host, so localhost and the deployed domain are two different entries:
+
+```
+http://localhost:3000/api/auth/callback
+https://<your-domain>/api/auth/callback
+```
+
+Borrowing another project's OAuth client works, but it will only have that
+project's URIs registered.
 
 **`.env.local` alone is not enough for `vercel dev`.** It injects the linked
 project's environment variables into functions, so a value that exists only in
