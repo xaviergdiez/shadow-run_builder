@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { charKey, deleteData, redis } from "../lib/storage.js";
+import { charKey, deleteData, redis, NS } from "../lib/storage.js";
 import { requireUser, getUser, saveUser, randomToken } from "../lib/auth.js";
 
 export default async function handler(req, res) {
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     if (!entry) return res.status(404).json({ error: "unknown_character" });
     if (!entry.syncToken) {
       entry.syncToken = randomToken();
-      await redis.set(`synctoken:${entry.syncToken}`, { uid, cid: entry.id });
+      await redis.set(`${NS}synctoken:${entry.syncToken}`, { uid, cid: entry.id });
       await saveUser(uid, user);
     }
     return res.status(200).json({ token: entry.syncToken });
@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     user.chars = user.chars.filter((ch) => ch.id !== cid);
     await saveUser(uid, user);
     const keys = ["state", "avatar"].map((p) => charKey(uid, cid, p));
-    if (entry.syncToken) await redis.del(`synctoken:${entry.syncToken}`);
+    if (entry.syncToken) await redis.del(`${NS}synctoken:${entry.syncToken}`);
     await deleteData(...keys);
     return res.status(200).json({ ok: true });
   }

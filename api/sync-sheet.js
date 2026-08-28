@@ -1,4 +1,4 @@
-import { readData, writeData, charKey, redis } from "../lib/storage.js";
+import { readData, writeData, charKey, redis, NS } from "../lib/storage.js";
 import { rowToCharacter } from "../src/logic/importSheet.js";
 
 // The Apps Script posts one runner: { row: { Name: "...", Skills: "...", ... } }.
@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   // Per-character sync token minted in the app (runner list → Sheet sync).
   const bearer = (req.headers["authorization"] ?? "").replace(/^Bearer /, "");
-  const grant = bearer ? await redis.get(`synctoken:${bearer}`) : null;
+  const grant = bearer ? await redis.get(`${NS}synctoken:${bearer}`) : null;
   if (!grant?.uid || !grant?.cid) {
     return res.status(401).json({ error: "unauthorized" });
   }

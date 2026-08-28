@@ -8,7 +8,7 @@ import {
   getUser,
   saveUser,
 } from "../../lib/auth.js";
-import { redis } from "../../lib/storage.js";
+import { redis, NS } from "../../lib/storage.js";
 
 const GOOGLE_AUTH = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN = "https://oauth2.googleapis.com/token";
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
     const existing = await getUser(sub);
     await saveUser(sub, { email, name, chars: existing?.chars ?? [] });
     // 1 free avatar credit per account; NX so re-logins never reset it.
-    await redis.set(`credits:${sub}`, 1, { nx: true });
+    await redis.set(`${NS}credits:${sub}`, 1, { nx: true });
     await createSession(res, sub);
     return res.redirect(302, "/");
   }
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
   if (action === "me") {
     const uid = await getSession(req);
     if (!uid) return res.status(401).json({ error: "unauthenticated" });
-    const [user, credits] = await Promise.all([getUser(uid), redis.get(`credits:${uid}`)]);
+    const [user, credits] = await Promise.all([getUser(uid), redis.get(`${NS}credits:${uid}`)]);
     return res.status(200).json({ uid, email: user?.email, name: user?.name, credits: Number(credits) || 0 });
   }
 
