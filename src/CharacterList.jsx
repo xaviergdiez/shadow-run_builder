@@ -147,9 +147,10 @@ export default function CharacterList({ me }) {
                     ) : (
                       "copy the template sheet"
                     )}
-                    , then in Extensions → Apps Script → Script Properties set{" "}
-                    <code>SYNC_SECRET</code> to your token and <code>WEBHOOK_URL</code> to{" "}
-                    <code>{window.location.origin}/api/sync-sheet</code>.
+                    , paste <code>apps-script.js</code> into Extensions → Apps Script, then
+                    reload the sheet and use the <strong>Shadowrun</strong> menu: set the webhook
+                    URL to <code>{window.location.origin}/api/sync-sheet</code> once, then set this
+                    token on the runner's own tab. One tab per runner, one token each.
                   </p>
                   {syncToken ? (
                     <div className="home__token-row">
