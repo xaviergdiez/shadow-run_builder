@@ -108,8 +108,18 @@ concept and keywords. Generation is Gemini, downscaled to 768px JPEG before
 storage (raw PNGs base64-encode past Upstash's 1MB cap), and the image lands in
 the sheet header and prints with it.
 
+Or skip generation: **Upload instead** on the Portrait panel takes a JPEG, PNG
+or WebP, downscales it in the browser (`src/utils/image.js`) and `POST`s it to
+the same storage key. Generated or uploaded, whichever ran last is what the
+sheet shows.
+
 Unmetered on purpose: the D&D build gated this behind Stripe credits, this one
 has no Stripe and the endpoint is already behind sign-in.
+
+Measured against `gemini-3.1-flash-image`: it returns a 768&times;1376 JPEG at
+about 910KB, which is ~1.19MB base64 — over Upstash's 1MB request cap. The
+`sharp` step is what makes the save work, and not by resizing (the image is
+already 768 wide) but by re-encoding: ~213KB, ~277KB base64. Do not remove it.
 
 ---
 

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { METATYPES, TIERS } from "../../data/rules.js";
 import { LIFESTYLES } from "../../data/catalog.js";
 import { nuyen } from "../../logic/derive.js";
+import { fileToJpegBase64 } from "../../utils/image.js";
 import "./Steps.css";
 
 // Step 1. The tier sets the whole budget, so changing it retunes every later
@@ -10,6 +11,7 @@ export default function IdentityStep({ character, update, spend }) {
   const { identity, tier } = character;
   const metatype = METATYPES.find((m) => m.id === identity.metatype);
   const [portrait, setPortrait] = useState({ busy: false, error: null });
+  const fileInput = useRef(null);
 
   const setField = (key, value) => update({ identity: { ...identity, [key]: value } });
 
@@ -28,6 +30,35 @@ export default function IdentityStep({ character, update, spend }) {
       }
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
+      update({ avatarV: body.v });
+      setPortrait({ busy: false, error: null });
+    } catch (err) {
+      setPortrait({ busy: false, error: err.message });
+    }
+  };
+
+  // Upload lands on the same storage key as generation, so the two are
+  // alternatives rather than separate slots — whichever ran last is what the
+  // sheet shows.
+  const uploadPortrait = async (file) => {
+    if (!file) return;
+    setPortrait({ busy: true, error: null });
+    try {
+      const b64 = await fileToJpegBase64(file);
+      const res = await fetch("/api/avatar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ c: character.charId, mimeType: "image/jpeg", b64 }),
+      });
+      if (res.status === 404) throw new Error("No /api here. Portraits need `vercel dev` (or a deploy) — see README.");
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(
+          body.error === "image_too_large"
+            ? "That image is too large — try a smaller one."
+            : body.error ?? `HTTP ${res.status}`
+        );
+      }
       update({ avatarV: body.v });
       setPortrait({ busy: false, error: null });
     } catch (err) {
@@ -173,8 +204,26 @@ export default function IdentityStep({ character, update, spend }) {
                 disabled={portrait.busy}
                 onClick={generatePortrait}
               >
-                {portrait.busy ? "Generating…" : character.avatarV > 0 ? "Regenerate" : "Generate portrait"}
+                {portrait.busy ? "Working…" : character.avatarV > 0 ? "Regenerate" : "Generate portrait"}
               </button>
+              <button
+                type="button"
+                className="ghost-button"
+                disabled={portrait.busy}
+                onClick={() => fileInput.current?.click()}
+              >
+                Upload instead
+              </button>
+              <input
+                ref={fileInput}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                hidden
+                onChange={(e) => {
+                  uploadPortrait(e.target.files?.[0]);
+                  e.target.value = ""; // so picking the same file twice still fires
+                }}
+              />
               {portrait.error && <span className="field__warn">{portrait.error}</span>}
             </div>
           </div>

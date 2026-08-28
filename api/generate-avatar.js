@@ -73,10 +73,13 @@ export default async function handler(req, res) {
     // ponytail: no credit metering. The D&D build gated this behind Stripe
     // credits; this build has no Stripe, and the endpoint is already behind
     // sign-in. Re-add a per-uid counter if the Gemini bill ever shows up.
-    const png = await callGeminiImage(buildPrompt(identity, req.body?.keywords), apiKey);
+    const raw = await callGeminiImage(buildPrompt(identity, req.body?.keywords), apiKey);
 
-    // Downscale + JPEG: raw Gemini PNGs base64-encode past Upstash's 1MB cap.
-    const jpeg = await sharp(png).resize({ width: 768 }).jpeg({ quality: 82 }).toBuffer();
+    // Load-bearing, and not for the reason it looks: Gemini already returns a
+    // 768-wide portrait JPEG, so the resize is a no-op. It is the re-encode
+    // that matters — measured 911KB in, 213KB out, which is 1187KB vs 277KB
+    // base64 against Upstash's 1MB request cap. Without it, every save fails.
+    const jpeg = await sharp(raw).resize({ width: 768 }).jpeg({ quality: 82 }).toBuffer();
     await writeAvatar(key, "image/jpeg", jpeg);
 
     // Version is returned rather than generated client-side so the URL only
