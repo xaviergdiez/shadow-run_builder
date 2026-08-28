@@ -148,6 +148,35 @@ already 768 wide) but by re-encoding: ~213KB, ~277KB base64. Do not remove it.
 
 ---
 
+## Rolling
+
+Click any skill or specialization row on the sheet. The tray opens with that
+row's pool and Risk Reduction already filled in, and every field stays editable.
+
+Two things are **inputs, not constants**, because the book makes them so:
+
+| | |
+|---|---|
+| **Hit threshold** | Set per roll by the GM's difficulty call — 4+, 5+ or 6 only. There is no house value baked into `rules.js`. |
+| **Risk Reduction** | Subtracts from the 1s you rolled. `remaining = max(0, ones − RR)`, and the remainder is what `GLITCH_LEGEND` reads: 1 minor, 2 critical, 3+ disaster. |
+
+Risk dice come from the p.70 grid via your RR and the chosen risk level, and
+can be typed over — the book's `6+ dice` and `10+ dice` are floors, not counts,
+and the tray says so when you pick one.
+
+**One thing the roller deliberately does not decide.** Pool hits and risk hits
+are counted and displayed *separately* as well as totalled, because whether
+risk dice contribute to the test's hits is a reading of p.70 rather than
+arithmetic. 1s are read off the risk dice only — the pool is not where glitches
+come from, which is the point of accepting risk. If your table reads it
+differently, both halves are on screen.
+
+`node src/logic/roll.test.js` covers the threshold, the RR subtraction at every
+level, that pool 1s never glitch, the whole p.70 grid including the `N/A` cell,
+and that dice land in 1–6.
+
+---
+
 ## The six steps
 
 | Step | What it costs | Notes |

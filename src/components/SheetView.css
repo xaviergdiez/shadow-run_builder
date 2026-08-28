@@ -323,3 +323,20 @@
     color: #333;
   }
 }
+
+/* A skill row is the natural place to roll from: the pool and RR are already
+   on it, so clicking it needs no second lookup. */
+.sheet__trow--rollable {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.sheet__trow--rollable:hover {
+  background: rgba(53, 214, 229, 0.08);
+  box-shadow: inset 2px 0 0 var(--color-cyan);
+}
+
+.sheet__trow--rollable:focus-visible {
+  outline: 1px solid var(--color-cyan);
+  outline-offset: -1px;
+}

@@ -26,7 +26,7 @@ function rrFor(reductions, skillName, specName = null) {
   return hit?.rr ?? 0;
 }
 
-export default function SheetView({ character, spend }) {
+export default function SheetView({ character, spend, onRoll }) {
   const metatype = METATYPES.find((m) => m.id === character.identity.metatype);
   const tier = TIERS.find((t) => t.id === character.tier);
   const lifestyle = LIFESTYLES.find((l) => l.id === character.identity.lifestyle);
@@ -139,7 +139,32 @@ export default function SheetView({ character, spend }) {
                 const specs = [...new Set([...bought, ...rrSpecsFor(skill)])];
                 return (
                   <div key={skill.key} className="sheet__skill">
-                    <div className="sheet__trow sheet__trow--main">
+                    <div
+                      className={`sheet__trow sheet__trow--main ${onRoll ? "sheet__trow--rollable" : ""}`}
+                      role={onRoll ? "button" : undefined}
+                      tabIndex={onRoll ? 0 : undefined}
+                      onClick={
+                        onRoll &&
+                        (() =>
+                          onRoll({
+                            label: skill.name,
+                            pool: dicePool(character, skill.key),
+                            rr: rrFor(reductions, skill.name),
+                          }))
+                      }
+                      onKeyDown={
+                        onRoll &&
+                        ((e) => {
+                          if (e.key !== "Enter" && e.key !== " ") return;
+                          e.preventDefault();
+                          onRoll({
+                            label: skill.name,
+                            pool: dicePool(character, skill.key),
+                            rr: rrFor(reductions, skill.name),
+                          });
+                        })
+                      }
+                    >
                       <span>{skill.name}</span>
                       <span className="num">{character.skills[skill.key] || 0}</span>
                       <span className="num">{abbrOf(skill.attr)}</span>
@@ -152,7 +177,20 @@ export default function SheetView({ character, spend }) {
                       return (
                         <div
                           key={spec}
-                          className={`sheet__trow sheet__trow--spec ${owned ? "" : "sheet__trow--unbought"}`}
+                          className={`sheet__trow sheet__trow--spec ${owned ? "" : "sheet__trow--unbought"} ${
+                            onRoll ? "sheet__trow--rollable" : ""
+                          }`}
+                          role={onRoll ? "button" : undefined}
+                          tabIndex={onRoll ? 0 : undefined}
+                          onClick={
+                            onRoll &&
+                            (() =>
+                              onRoll({
+                                label: `${skill.name} (${spec})`,
+                                pool: dicePool(character, skill.key, spec, owned),
+                                rr: rrFor(reductions, skill.name, spec) || rrFor(reductions, skill.name),
+                              }))
+                          }
                         >
                           <span>
                             ({spec}

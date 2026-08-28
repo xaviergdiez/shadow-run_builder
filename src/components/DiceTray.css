@@ -1,0 +1,173 @@
+/* Docked to the bottom so it stays put while you scroll the sheet — at the
+   table you roll far more often than you read. */
+.tray {
+  position: sticky;
+  bottom: var(--space-md);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--color-panel-raised);
+  border: var(--border-hair);
+  border-top: 2px solid var(--panel-accent, var(--color-cyan));
+  border-radius: var(--radius-md);
+  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.55);
+}
+
+.tray__head {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.tray__title {
+  margin: 0;
+  font-size: 17px;
+  letter-spacing: var(--track-tight);
+  text-transform: uppercase;
+  color: var(--color-cyan);
+}
+
+.tray__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: flex-end;
+}
+
+.tray__controls .field input,
+.tray__controls .field select {
+  width: 92px;
+}
+
+.tray__roll {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+  padding: var(--space-xs) var(--space-xl);
+}
+
+.tray__roll:hover {
+  background: rgba(53, 214, 229, 0.12);
+  box-shadow: var(--glow-cyan);
+}
+
+.tray__note,
+.tray__hint,
+.tray__legend {
+  margin: 0;
+  font-size: 11px;
+  color: var(--color-text-dim);
+}
+
+.tray__note {
+  color: var(--color-amber);
+}
+
+.tray__log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.roll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  padding: var(--space-sm);
+  background: var(--color-void-deep);
+  border: var(--border-hair);
+  border-left: 2px solid var(--color-chrome);
+  border-radius: var(--radius-sm);
+}
+
+/* Glitch severity is the one thing you read across the table, so it colours
+   the whole row rather than hiding in the detail line. */
+.roll--minor { border-left-color: var(--color-amber); }
+.roll--critical { border-left-color: var(--color-blood); }
+.roll--disaster {
+  border-left-color: var(--color-blood);
+  background: rgba(255, 77, 94, 0.07);
+}
+
+.roll__head {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.roll__label {
+  font-family: var(--font-display);
+  font-size: 13px;
+}
+
+.roll__hits {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-cyan);
+}
+
+.roll__hits-word {
+  font-size: 10px;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+}
+
+.roll__dice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  align-items: center;
+}
+
+.die {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: var(--color-panel);
+  border: 1px solid var(--color-chrome);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-dim);
+}
+
+.die--hit {
+  border-color: var(--color-cyan);
+  background: var(--color-cyan-dim);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Risk dice are visually a different currency from pool dice. */
+.die--risk {
+  border-style: dashed;
+}
+
+.die--one {
+  border-style: solid;
+  border-color: var(--color-blood);
+  background: rgba(255, 77, 94, 0.18);
+  color: var(--color-blood);
+  font-weight: 600;
+}
+
+.roll__sep {
+  width: 1px;
+  height: 18px;
+  margin: 0 var(--space-2xs);
+  background: var(--color-chrome);
+}
+
+.roll__detail {
+  margin: 0;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}

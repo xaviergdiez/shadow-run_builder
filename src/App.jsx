@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { usePersistedState } from "./hooks/usePersistedState";
 import {
   attributesSeed,
@@ -17,6 +17,7 @@ import AmpsStep from "./components/steps/AmpsStep.jsx";
 import GearStep from "./components/steps/GearStep.jsx";
 import PersonaStep from "./components/steps/PersonaStep.jsx";
 import SheetView from "./components/SheetView.jsx";
+import DiceTray from "./components/DiceTray.jsx";
 import "./App.css";
 
 const STEPS = [
@@ -104,6 +105,9 @@ export default function App({ charId, me }) {
     gear,
   ]);
 
+  // Not persisted: a dice tray is a table tool, not part of the character.
+  const [rolling, setRolling] = useState(null);
+
   const ess = essence(amps);
 
   const backToList = () => {
@@ -144,8 +148,12 @@ export default function App({ charId, me }) {
           {activeStep === "amps" && <AmpsStep {...stepProps} />}
           {activeStep === "gear" && <GearStep {...stepProps} />}
           {activeStep === "persona" && <PersonaStep {...stepProps} />}
-          {activeStep === "sheet" && <SheetView character={character} spend={spend} />}
+          {activeStep === "sheet" && (
+            <SheetView character={character} spend={spend} onRoll={setRolling} />
+          )}
         </main>
+
+        <DiceTray open={rolling} onClose={() => setRolling(null)} />
 
         <footer className="app__footer no-print">
           <span className="label">
