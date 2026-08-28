@@ -177,6 +177,48 @@ and that dice land in 1–6.
 
 ---
 
+## Magic
+
+Spells are bought and equipped as Shadow Amps, priced at **Rating × 5,000¥**.
+25 of them across the five Sorcery schools, in the `spell` amp category. Where
+a spell has two rating tiers those are two catalog entries, because they are
+two different purchases rather than an upgrade path.
+
+Spell effect text is written so the rest of the app reacts to it:
+
+- It names its Sorcery specialization, so the dice pool is obvious.
+- Risk Reduction is phrased the way `riskReductions()` parses, so a spell that
+  grants it lands in the sheet's RR column by itself. Improved Invisibility
+  gives RR 1 to Stealth (physical sneaking); Combat Sense RR 1 to Athletics
+  (ranged defense).
+- Stone Skin carries `armorBonus: 1`, so its +1 Armor actually moves the
+  physical wound thresholds instead of only reading well.
+
+Three rules are enforced rather than described:
+
+| Rule | Where |
+|---|---|
+| Spells need an Awakening to cast at all | `validate()` warns when a `spell` amp has no `awakened` amp beside it |
+| One sustained spell is free; two is a Disadvantage on everything | `validate()` counts amps flagged `sustained` and names them |
+| Drain is the glitch on a Sorcery or Conjuring roll | the dice tray prints the consequence under any magical roll that glitched |
+
+**Drain is not a separate roll.** It is what the 1s on your risk dice mean when
+the test was magical: 1 one is a Disadvantage until the end of your next
+narration, 2 is a light wound, 3+ is Incapacitated. This also settles the
+question the roller had deliberately left open — 1s are read off the **risk
+dice only**, never the pool.
+
+### Two things to check against your book
+
+- The spell list gives Direct damage as `DV = Hits` in one place and
+  `DV = Net Hits` in another, and Indirect as `Willpower + Net Hits` in one and
+  `Willpower + Hits` in the other. The catalog uses hits for Direct and
+  Willpower + net hits for Indirect. Change the effect text if that is backwards.
+- `Spell: Influence / Suggestion` is listed as "Instantaneous / Sustained". It
+  is flagged `sustained`, which means it counts against your free sustain.
+
+---
+
 ## The six steps
 
 | Step | What it costs | Notes |

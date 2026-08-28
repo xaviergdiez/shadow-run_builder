@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DIFFICULTY_TABLE } from "../data/rules.js";
+import { DIFFICULTY_TABLE, DRAIN } from "../data/rules.js";
 import { GLITCH_LEGEND, RISK_LEVELS, resolveRoll, riskDiceFor } from "../logic/roll.js";
 import "./DiceTray.css";
 
@@ -36,7 +36,21 @@ export default function DiceTray({ open, onClose }) {
 
   const roll = () => {
     const result = resolveRoll({ pool, target, riskDice: dice, rr });
-    setLog([{ ...result, label: open.label, level, id: `${Date.now()}-${log.length}` }, ...log].slice(0, 6));
+    // Drain is not a separate roll — it is what the glitch means when the
+    // test was Sorcery or Conjuring.
+    const magical = open.skillKey === "sorcery" || open.skillKey === "conjuring";
+    setLog(
+      [
+        {
+          ...result,
+          label: open.label,
+          level,
+          drain: magical ? DRAIN[result.glitch.id] ?? null : null,
+          id: `${Date.now()}-${log.length}`,
+        },
+        ...log,
+      ].slice(0, 6)
+    );
   };
 
   return (
@@ -150,6 +164,8 @@ export default function DiceTray({ open, onClose }) {
                   ` · ${r.ones} ${r.ones === 1 ? "one" : "ones"}${r.rr > 0 ? ` less RR ${r.rr}` : ""} = ${r.remainingOnes}`}
                 {r.glitch.id !== "none" && ` · ${r.glitch.name}`}
               </p>
+
+              {r.drain && <p className="roll__drain">Drain — {r.drain}</p>}
             </li>
           ))}
         </ul>

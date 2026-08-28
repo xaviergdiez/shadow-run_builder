@@ -147,7 +147,20 @@ const FOX = {
   assert.equal(awakened.name, "Awakened: Sorcerer");
   assert.equal(awakened.rating, 2);
   assert.equal(awakened.category, "awakened");
-  assert.equal(state.amps.filter((a) => a.category === "awakened").length, 3, "Spell: entries too");
+  assert.equal(state.amps.filter((a) => a.category === "awakened").length, 1, "only the Awakening itself");
+
+  // Spells are their own category. Filing them as "awakened" would satisfy the
+  // gate that says Sorcery needs an Awakening, so a sheet carrying only spells
+  // would import as legal when it is not.
+  assert.equal(state.amps.filter((a) => a.category === "spell").length, 2);
+
+  // A catalog name match brings the price the sheet has no column for.
+  const invis = state.amps.find((a) => a.name === "Spell: Invisibility");
+  assert.equal(invis.category, "spell");
+  assert.equal(invis.nuyen, 5_000, "priced from the catalog");
+  // "Spell: Phantasm/Influence" names two catalog spells at once and matches
+  // neither, so it stays at 0 for the player to price.
+  assert.equal(state.amps.find((a) => a.name === "Spell: Phantasm/Influence").nuyen, 0);
   assert.equal(state.amps.find((a) => a.name === "Glamour Focus").category, "equipment");
 
   assert.equal(state.gear.find((g) => g.name === "Well-Stocked Closet / Fine Suit").armor, 1);

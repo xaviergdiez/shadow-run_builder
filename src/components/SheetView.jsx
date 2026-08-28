@@ -148,6 +148,7 @@ export default function SheetView({ character, spend, onRoll }) {
                         (() =>
                           onRoll({
                             label: skill.name,
+                            skillKey: skill.key,
                             pool: dicePool(character, skill.key),
                             rr: rrFor(reductions, skill.name),
                           }))
@@ -159,6 +160,7 @@ export default function SheetView({ character, spend, onRoll }) {
                           e.preventDefault();
                           onRoll({
                             label: skill.name,
+                            skillKey: skill.key,
                             pool: dicePool(character, skill.key),
                             rr: rrFor(reductions, skill.name),
                           });
@@ -187,6 +189,7 @@ export default function SheetView({ character, spend, onRoll }) {
                             (() =>
                               onRoll({
                                 label: `${skill.name} (${spec})`,
+                                skillKey: skill.key,
                                 pool: dicePool(character, skill.key, spec, owned),
                                 rr: rrFor(reductions, skill.name, spec) || rrFor(reductions, skill.name),
                               }))

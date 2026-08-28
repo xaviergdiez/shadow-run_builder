@@ -1,4 +1,4 @@
-import { ATTRIBUTES, BASE_ESSENCE, COSTS, SKILLS, SKILL_MAX, ATTRIBUTE_MAX } from "../data/rules.js";
+import { ATTRIBUTES, BASE_ESSENCE, COSTS, FREE_SUSTAINED, SKILLS, SKILL_MAX, ATTRIBUTE_MAX } from "../data/rules.js";
 
 export const nuyen = (n) => `${Math.round(n).toLocaleString("en-US")}\u00A5`;
 
@@ -134,6 +134,11 @@ export function riskReductions(amps) {
   return [...merged.values()].sort((a, b) => b.rr - a.rr || a.skill.localeCompare(b.skill));
 }
 
+// Spells that stay up. One is free; every one after that costs a Disadvantage
+// on everything you do, so the count is worth surfacing rather than leaving
+// players to tally it mid-fight.
+export const sustainedSpells = (amps) => amps.filter((a) => a.sustained);
+
 // ---------------------------------------------------------------------------
 // Validation. These are advisory, not blocking. Anarchy expects rulings, not
 // rules, so the builder warns and lets you keep going.
@@ -180,6 +185,24 @@ export function validate(character) {
     issues.push({
       level: "warn",
       text: "Sorcery and Conjuring cannot be rolled without an Awakened amp, whatever the dice pool (p.64).",
+    });
+  }
+
+  const spells = character.amps.filter((a) => a.category === "spell");
+  if (spells.length > 0 && !hasAwakened) {
+    issues.push({
+      level: "warn",
+      text: "Spells are cast with Sorcery, which needs an Awakened amp to roll at all (p.64).",
+    });
+  }
+
+  const sustained = sustainedSpells(character.amps);
+  if (sustained.length > FREE_SUSTAINED) {
+    issues.push({
+      level: "warn",
+      text: `${sustained.length} sustained spells (${sustained
+        .map((s) => s.name)
+        .join(", ")}). One is free; holding more is a Disadvantage on every test unless an amp or focus carries it.`,
     });
   }
 

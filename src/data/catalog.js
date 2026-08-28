@@ -16,6 +16,7 @@ export const AMP_CATEGORIES = [
   { id: "bioware", name: "Bioware", hint: "Grown, not bolted. Gentler on Essence." },
   { id: "awakened", name: "Awakened", hint: "The gift. Gates Sorcery and Conjuring." },
   { id: "adeptPower", name: "Adept Power", hint: "Mana turned inward. Requires an Adept amp." },
+  { id: "spell", name: "Spell", hint: "Bought and equipped as amps. Rating x 5,000\u00A5. Needs an Awakening." },
   { id: "weapon", name: "Weapon Amp", hint: "A specific gun, not a generic one." },
   { id: "equipment", name: "Equipment Amp", hint: "Kit good enough to change a roll." },
   { id: "vehicle", name: "Vehicle / Drone", hint: "Vehicles are Shadow Amps (p.230)." },
@@ -82,6 +83,7 @@ export const AMP_CATALOG = [
     rating: 2,
     essence: 1,
     nuyen: 10_000,
+    armorBonus: 1,
     effects: "+1 Armor. Raises every physical wound threshold by 1.",
     source: "assumed",
   },
@@ -309,6 +311,7 @@ export const AMP_CATALOG = [
     rating: 2,
     essence: 0,
     nuyen: 6_000,
+    armorBonus: 1,
     effects: "Always have the appropriate apparel. RR 1 to Influence (etiquette).",
     source: "book",
   },
@@ -395,6 +398,313 @@ export const AMP_CATALOG = [
     nuyen: 6_000,
     effects: "RR 1 to Network tests for anything magical.",
     source: "assumed",
+  },
+
+  // ---- Spells --------------------------------------------------------------
+  // Spells are bought and equipped as Shadow Amps, priced at 5,000\u00A5 per Rating
+  // point. Where a spell has two tiers they are two entries: the higher rating
+  // is a different purchase, not an upgrade path.
+  //
+  // Effect text names its Sorcery specialization so the dice pool is obvious,
+  // and writes Risk Reduction in the form riskReductions() parses, so an
+  // RR-granting spell lands in the sheet's RR column on its own.
+
+  // Combat - Sorcery (combat spells) + Willpower
+  {
+    id: "spellManabolt",
+    name: "Spell: Manabolt",
+    category: "spell",
+    rating: 1,
+    essence: 0,
+    nuyen: 5_000,
+    effects:
+      "Sorcery (combat spells). Direct single-target mana attack on a living or astral target. No defense roll; DV equals hits, as Mental damage.",
+    source: "book",
+  },
+  {
+    id: "spellManaboltR2",
+    name: "Spell: Manabolt (honed)",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    effects: "Manabolt, plus RR 1 to Sorcery (combat spells) when casting it.",
+    source: "book",
+  },
+  {
+    id: "spellStunbolt",
+    name: "Spell: Stunbolt",
+    category: "spell",
+    rating: 1,
+    essence: 0,
+    nuyen: 5_000,
+    effects:
+      "Sorcery (combat spells). Direct non-lethal mana attack on the target's astral aura. No defense roll; DV equals hits, as Stun damage.",
+    source: "book",
+  },
+  {
+    id: "spellManastorm",
+    name: "Spell: Manastorm / Manaball",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    effects:
+      "Sorcery (combat spells). Direct area mana attack on everything within 3 metres. DV equals hits, as Mental damage.",
+    source: "book",
+  },
+  {
+    id: "spellPowerbolt",
+    name: "Spell: Powerbolt",
+    category: "spell",
+    rating: 1,
+    essence: 0,
+    nuyen: 5_000,
+    effects:
+      "Sorcery (combat spells). Indirect kinetic blast on a living being or an object. Target resists with Athletics (ranged defense) + Agility. DV equals Willpower + net hits, as Physical damage.",
+    source: "book",
+  },
+  {
+    id: "spellFireball",
+    name: "Spell: Fireball / Flame Strike",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    effects:
+      "Sorcery (combat spells). Indirect explosive fire over a 3 metre area. DV equals Willpower + net hits, as Physical damage. Spend 1 Edge to set the target On Fire.",
+    source: "book",
+  },
+  {
+    id: "spellBallLightning",
+    name: "Spell: Ball Lightning",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    effects:
+      "Sorcery (combat spells). Indirect electrical blast over an area. DV equals Willpower + net hits, as Physical damage. Spend 1 Edge to glitch electronics and cyberware caught in it.",
+    source: "book",
+  },
+
+  // Detection - Sorcery (detection spells) + Willpower
+  {
+    id: "spellClairvoyance",
+    sustained: true,
+    name: "Spell: Clairvoyance / Clairaudience",
+    category: "spell",
+    rating: 1,
+    essence: 0,
+    nuyen: 5_000,
+    effects:
+      "Sorcery (detection spells). Sustained. Projects sight or hearing to a place in line of sight or to known coordinates.",
+    source: "book",
+  },
+  {
+    id: "spellDetectLife",
+    sustained: true,
+    name: "Spell: Detect Enemies / Detect Life",
+    category: "spell",
+    rating: 1,
+    essence: 0,
+    nuyen: 5_000,
+    effects:
+      "Sorcery (detection spells). Sustained. Reveals the presence, number and rough position of living or hostile things through walls.",
+    source: "book",
+  },
+  {
+    id: "spellMindProbe",
+    name: "Spell: Mind Probe",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    effects:
+      "Sorcery (detection spells). Opposed against the target's Willpower + Logic. Net hits pull out memories, secrets or present thoughts.",
+    source: "book",
+  },
+  {
+    id: "spellCombatSense",
+    sustained: true,
+    name: "Spell: Combat Sense",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    effects:
+      "Sorcery (detection spells). Sustained. RR 1 to Athletics (ranged defense). The same reduction applies to Close Combat defence at the GM's call.",
+    source: "book",
+  },
+
+  // Health - Sorcery (health spells) + Willpower
+  {
+    id: "spellHeal",
+    name: "Spell: Heal",
+    category: "spell",
+    rating: 1,
+    essence: 0,
+    nuyen: 5_000,
+    effects:
+      "Sorcery (health spells). Tested against the target's current wound threshold. Each net hit clears one physical wound box.",
+    source: "book",
+  },
+  {
+    id: "spellIncreaseReflexes",
+    sustained: true,
+    name: "Spell: Increase Reflexes",
+    category: "spell",
+    rating: 3,
+    essence: 0,
+    nuyen: 15_000,
+    effects: "Sorcery (health spells). Sustained. +1 action per fight while it holds.",
+    source: "book",
+  },
+  {
+    id: "spellStoneSkin",
+    sustained: true,
+    name: "Spell: Stone Skin / Increase Armor",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    armorBonus: 1,
+    effects:
+      "Sorcery (health spells). Sustained. +1 Armor, which raises every physical wound threshold by 1.",
+    source: "book",
+  },
+  {
+    id: "spellAntidote",
+    name: "Spell: Antidote / Cure Disease",
+    category: "spell",
+    rating: 1,
+    essence: 0,
+    nuyen: 5_000,
+    effects:
+      "Sorcery (health spells). Clears toxins, synthetic drugs or biological pathogens out of the target.",
+    source: "book",
+  },
+
+  // Illusion - Sorcery (illusion spells) + Willpower
+  {
+    id: "spellInvisibility",
+    sustained: true,
+    name: "Spell: Invisibility",
+    category: "spell",
+    rating: 1,
+    essence: 0,
+    nuyen: 5_000,
+    effects: "Sorcery (illusion spells). Sustained. Bends light around the target: invisible to the eye.",
+    source: "book",
+  },
+  {
+    id: "spellImprovedInvisibility",
+    sustained: true,
+    name: "Spell: Improved Invisibility",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    effects:
+      "Sorcery (illusion spells). Sustained. Beats eyes and camera sensors both. RR 1 to Stealth (physical sneaking).",
+    source: "book",
+  },
+  {
+    id: "spellPhantasm",
+    sustained: true,
+    name: "Spell: Phantasm / Trid Phantasm",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    effects:
+      "Sorcery (illusion spells). Sustained. Projects a convincing sight, sound and smell illusion over an area. Opposed by Perception + Logic to see through.",
+    source: "book",
+  },
+  {
+    id: "spellInfluence",
+    sustained: true,
+    name: "Spell: Influence / Suggestion",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    effects:
+      "Sorcery (illusion spells). Plants a nudge or an impulse in a target's mind. RR 1 to Influence (impersonation).",
+    source: "book",
+  },
+  {
+    id: "spellChaos",
+    sustained: true,
+    name: "Spell: Chaos / Confusion",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    effects:
+      "Sorcery (illusion spells). Sustained. Floods the target with sensory noise. Opposed by Willpower; Disadvantage on everything they do while it holds.",
+    source: "book",
+  },
+  {
+    id: "spellPhysicalMask",
+    sustained: true,
+    name: "Spell: Physical Mask",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    effects:
+      "Sorcery (illusion spells). Sustained. Rewrites appearance, voice, height and aura into someone else. RR 1 to Influence (impersonation).",
+    source: "book",
+  },
+
+  // Manipulation - Sorcery (manipulation spells) + Willpower
+  {
+    id: "spellBarrier",
+    sustained: true,
+    name: "Spell: Mana Barrier / Physical Barrier",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    effects:
+      "Sorcery (manipulation spells). Sustained. An invisible wall against physical or astral movement, with Force equal to the spell's hits. Absorbs damage or blocks passage.",
+    source: "book",
+  },
+  {
+    id: "spellLevitate",
+    sustained: true,
+    name: "Spell: Levitate",
+    category: "spell",
+    rating: 1,
+    essence: 0,
+    nuyen: 5_000,
+    effects:
+      "Sorcery (manipulation spells). Sustained. Lifts and moves objects or people through the air at walking pace.",
+    source: "book",
+  },
+  {
+    id: "spellControlThoughts",
+    sustained: true,
+    name: "Spell: Control Thoughts / Mind Control",
+    category: "spell",
+    rating: 3,
+    essence: 0,
+    nuyen: 15_000,
+    effects:
+      "Sorcery (manipulation spells). Sustained. Opposed by the target's Willpower. On a win you dictate their movement and actions on their turn.",
+    source: "book",
+  },
+  {
+    id: "spellTelekinesis",
+    sustained: true,
+    name: "Spell: Telekinesis / Poltergeist",
+    category: "spell",
+    rating: 2,
+    essence: 0,
+    nuyen: 10_000,
+    effects:
+      "Sorcery (manipulation spells). Sustained. Throws loose objects at people, or works switches and doors from across the room.",
+    source: "book",
   },
 
   // ---- Qualities -----------------------------------------------------------

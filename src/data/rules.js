@@ -229,6 +229,18 @@ export const RISK_TABLE = [
 export const GLITCH_LEGEND =
   "Remaining 1s: 0 = no effect · 1 = minor glitch · 2 = critical glitch · 3+ = disaster";
 
+// Drain is not a separate resist roll in Anarchy 2.0 — it is what the 1s on
+// your risk dice mean when the test was Sorcery or Conjuring. Same glitch
+// ladder as GLITCH_LEGEND, different consequences.
+export const DRAIN = {
+  minor: "Disadvantage on all actions until the end of your next narration.",
+  critical: "Mana strain: take 1 Light Physical/Mental wound box immediately.",
+  disaster: "Mana overload: Incapacitated immediately.",
+};
+
+// You sustain one spell for free. The second one costs you everything else.
+export const FREE_SUSTAINED = 1;
+
 export const DIFFICULTY_TABLE = [
   { difficulty: "Easy", threshold: "2" },
   { difficulty: "Average", threshold: "3" },

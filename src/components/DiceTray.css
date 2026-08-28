@@ -171,3 +171,15 @@
   font-size: 11px;
   color: var(--color-text-muted);
 }
+
+/* Drain only appears on a magical test that glitched, so it earns the loud
+   treatment: it is a consequence, not a note. */
+.roll__drain {
+  margin: 0;
+  padding: var(--space-2xs) var(--space-xs);
+  border-left: 2px solid var(--color-violet);
+  background: rgba(169, 107, 255, 0.1);
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--color-violet);
+}

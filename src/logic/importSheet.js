@@ -121,7 +121,10 @@ function parseAmps(raw) {
 function inferCategory(name) {
   if (/^awakened/i.test(name)) return "awakened";
   if (/^adept power/i.test(name)) return "adeptPower";
-  if (/^spell:/i.test(name)) return "awakened";
+  // Spells are their own category now that the catalog carries them. They used
+  // to be filed as "awakened", which wrongly satisfied the gate that says
+  // Sorcery needs an Awakening — a sheet with only spells looked legal.
+  if (/^spell:/i.test(name)) return "spell";
   if (/focus$/i.test(name)) return "equipment";
   return "custom";
 }
