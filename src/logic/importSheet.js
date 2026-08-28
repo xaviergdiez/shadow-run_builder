@@ -205,3 +205,106 @@ export function rowToCharacter(row) {
     },
   };
 }
+
+// ---------------------------------------------------------------------------
+// Fetching a sheet straight from the browser
+// ---------------------------------------------------------------------------
+
+// Google's gviz endpoint echoes an Access-Control-Allow-Origin header for the
+// requesting origin, so a "anyone with the link" sheet can be read client-side
+// with no backend, no OAuth and no Apps Script. That is the whole reason this
+// path exists alongside api/sync-sheet.js.
+export function sheetCsvUrl(input, tab) {
+  const raw = String(input ?? "").trim();
+  if (!raw) return null;
+  // Accept a full edit URL or a bare spreadsheet id.
+  const id = raw.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1] ?? (/^[a-zA-Z0-9-_]{20,}$/.test(raw) ? raw : null);
+  if (!id) return null;
+
+  const base = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv`;
+  if (tab?.trim()) return `${base}&sheet=${encodeURIComponent(tab.trim())}`;
+  // A URL copied while a tab is open carries that tab's gid; without either we
+  // get the first tab, which is the right default for a one-runner sheet.
+  const gid = raw.match(/[#&?]gid=(\d+)/)?.[1];
+  return gid ? `${base}&gid=${gid}` : base;
+}
+
+// Minimal RFC-4180: quoted fields, escaped quotes, commas and newlines inside
+// quotes. Cues and Description both contain commas, so splitting on "," loses
+// half the character.
+export function parseCsv(text) {
+  const rows = [[]];
+  let cell = "";
+  let quoted = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) {
+      if (c !== '"') cell += c;
+      else if (text[i + 1] === '"') { cell += '"'; i++; }
+      else quoted = false;
+    } else if (c === '"') quoted = true;
+    else if (c === ",") { rows[rows.length - 1].push(cell); cell = ""; }
+    else if (c === "\n") { rows[rows.length - 1].push(cell); cell = ""; rows.push([]); }
+    else if (c !== "\r") cell += c;
+  }
+  rows[rows.length - 1].push(cell);
+
+  if (rows.length > 1 && rows[rows.length - 1].every((c) => c === "")) rows.pop();
+  return rows;
+}
+
+// Row 1 is headers, row 2 is the runner. Blank header columns are dropped —
+// Sheets pads exports with trailing empty columns.
+export function csvToRow(text) {
+  const rows = parseCsv(text);
+  if (rows.length < 2) return null;
+  const headers = rows[0].map((h) => h.trim());
+  const row = {};
+  headers.forEach((h, i) => {
+    if (h) row[h] = rows[1][i] ?? "";
+  });
+  return Object.keys(row).length ? row : null;
+}
+
+// One call for the UI: URL in, character out.
+export async function fetchSheetCharacter(input, tab) {
+  const url = sheetCsvUrl(input, tab);
+  if (!url) throw new Error("That does not look like a Google Sheets link.");
+
+  let res;
+  try {
+    res = await fetch(url);
+  } catch {
+    // A private sheet fails as a CORS/network error rather than a clean status.
+    throw new Error("Could not reach the sheet. It has to be shared as \u201Canyone with the link can view\u201D.");
+  }
+  if (!res.ok) {
+    throw new Error(
+      res.status === 404
+        ? "No such sheet or tab. Check the tab name."
+        : `The sheet returned HTTP ${res.status}.`
+    );
+  }
+
+  const text = await res.text();
+  // Google answers with an HTML sign-in page rather than a 4xx when a sheet is
+  // not link-shared, so a status check alone is not enough.
+  if (/^\s*</.test(text)) {
+    throw new Error("The sheet is not public. Share it as \u201Canyone with the link can view\u201D.");
+  }
+
+  const row = csvToRow(text);
+  if (!row) throw new Error("That tab has no data row. Row 1 is headers, row 2 is the runner.");
+  return rowToCharacter(row);
+}
+
+// Google answers a nonexistent `sheet=` name with the FIRST tab and status "ok"
+// — there is no error to catch. So a typo'd tab silently imports the wrong
+// runner. Tabs here are named after their character, so a name that disagrees
+// with the runner that came back is worth flagging. Soft on purpose: a sheet
+// whose tabs are not named after runners would trip it harmlessly.
+export function tabLooksWrong(tab, streetName) {
+  if (!tab?.trim() || !streetName) return false;
+  return norm(tab) !== norm(streetName);
+}

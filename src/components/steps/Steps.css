@@ -557,3 +557,118 @@ textarea {
   border-color: var(--color-steel);
   box-shadow: none;
 }
+
+/* ---- Sheet import --------------------------------------------------------- */
+
+.import__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: flex-end;
+}
+
+.import__url {
+  flex: 3 1 280px;
+}
+
+.import__tab {
+  flex: 1 1 120px;
+}
+
+.import__error {
+  margin: 0;
+  padding: var(--space-xs) var(--space-sm);
+  border-left: 2px solid var(--color-blood);
+  background: rgba(255, 77, 94, 0.08);
+  font-size: 12px;
+  color: var(--color-blood);
+}
+
+.import__review {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--color-void-deep);
+  border: var(--border-hair);
+  border-left: 2px solid var(--color-cyan);
+  border-radius: var(--radius-sm);
+}
+
+.import__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-cyan);
+}
+
+.import__meta {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.import__counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.import__counts li::before {
+  content: "";
+}
+
+.import__warn {
+  margin: 0;
+  padding: var(--space-xs) var(--space-sm);
+  border-left: 2px solid var(--color-amber);
+  background: rgba(240, 168, 46, 0.07);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-amber);
+}
+
+.import__unmapped {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.import__unmapped ul {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--color-text-dim);
+}
+
+.import__unmapped strong {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.import__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.import__apply {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+}
+
+.import__apply:hover {
+  background: rgba(53, 214, 229, 0.1);
+}
+
+.import__note {
+  font-size: 11px;
+  color: var(--color-text-dim);
+}

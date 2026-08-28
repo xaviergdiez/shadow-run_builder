@@ -3,6 +3,7 @@ import { METATYPES, TIERS } from "../../data/rules.js";
 import { LIFESTYLES } from "../../data/catalog.js";
 import { nuyen } from "../../logic/derive.js";
 import { fileToJpegBase64 } from "../../utils/image.js";
+import SheetImport from "../SheetImport.jsx";
 import "./Steps.css";
 
 // Step 1. The tier sets the whole budget, so changing it retunes every later
@@ -74,6 +75,8 @@ export default function IdentityStep({ character, update, spend }) {
 
   return (
     <div className="step">
+      <SheetImport character={character} update={update} />
+
       <section className="panel" style={{ "--panel-accent": "var(--cat-attributes)" }}>
         <header className="panel__head">
           <h2 className="panel__title">Tier</h2>

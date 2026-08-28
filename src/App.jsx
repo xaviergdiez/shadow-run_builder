@@ -47,6 +47,9 @@ export default function App({ charId, me }) {
   // Bumped when a portrait is generated. Persisted so the sheet knows there is
   // an image to fetch, and so the URL changes when it is regenerated.
   const [avatarV, setAvatarV] = usePersistedState("avatarV", 0);
+  // Remembered so re-importing after editing the sheet is one click, not
+  // another paste.
+  const [sheetSource, setSheetSource] = usePersistedState("sheetSource", { url: "", tab: "" });
   const [activeStep, setActiveStep] = usePersistedState("activeStep", STEPS[0].id);
 
   const setters = {
@@ -63,6 +66,7 @@ export default function App({ charId, me }) {
     dispositions: setDispositions,
     cues: setCues,
     avatarV: setAvatarV,
+    sheetSource: setSheetSource,
   };
 
   const character = {
@@ -79,6 +83,7 @@ export default function App({ charId, me }) {
     dispositions,
     cues,
     avatarV,
+    sheetSource,
     charId,
   };
 
