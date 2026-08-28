@@ -100,9 +100,35 @@ export function dicePool(character, skillKey, specName = null, owned = true) {
 // ganger blocks (STR 3 human DV 3, ork 4, troll 5).
 export const unarmedDV = (strength) => strength || 0;
 
-// Risk Reduction granted by amps, parsed from their effect text. Amps write it
-// as "RR 2 to Influence (impersonation)". Caps at 3 (p.71).
-const RR_PATTERN = /RR\s*(\d)\s*(?:to|on)?\s*([A-Za-z ]+?)(?:\s*\(([^)]+)\))?\s*(?:tests?|\.|,|$)/gi;
+// Risk Reduction granted by amps, parsed from their effect text.
+//
+// Driven by the skill list rather than by sentence shape. The previous pattern
+// required the clause to end in "tests", a full stop or a comma right after the
+// target, so "RR 1 to Perception (physical) on overwatch" parsed to nothing and
+// the Fly-Spy's book-printed RR never reached the sheet. It also invented
+// entries with empty skill names out of prose like "stacks up to RR 3 (p.71)".
+//
+// Now: find "RR <n>", then look for a skill rules.js actually knows in the
+// clause that follows. No known skill, no entry — which is the correct reading
+// of vague text like the Mentor Spirit's "one narrow magical domain".
+const RR_PATTERN = /RR\s*(\d)\b([^.;]*)/gi;
+
+// Longest first so "Close Combat" is never shadowed by a shorter name that
+// happens to be a substring of it.
+const SKILLS_BY_LENGTH = [...SKILLS].sort((a, b) => b.name.length - a.name.length);
+
+function targetOf(clause) {
+  for (const skill of SKILLS_BY_LENGTH) {
+    const at = clause.toLowerCase().indexOf(skill.name.toLowerCase());
+    if (at === -1) continue;
+    // A parenthetical immediately after the skill name is its specialization;
+    // one further along belongs to some other part of the sentence.
+    const after = clause.slice(at + skill.name.length);
+    const spec = after.match(/^\s*\(([^)]+)\)/)?.[1]?.trim() ?? null;
+    return { skill: skill.name, specialization: spec };
+  }
+  return null;
+}
 
 export function riskReductions(amps) {
   const found = [];
@@ -111,15 +137,12 @@ export function riskReductions(amps) {
     RR_PATTERN.lastIndex = 0;
     let match;
     while ((match = RR_PATTERN.exec(text)) !== null) {
-      found.push({
-        rr: Number(match[1]),
-        skill: match[2].trim(),
-        specialization: match[3]?.trim() ?? null,
-        from: amp.name,
-      });
+      const target = targetOf(match[2]);
+      if (!target) continue;
+      found.push({ rr: Number(match[1]), ...target, from: amp.name });
     }
   }
-  // Merge duplicates on the same target, summing but capping at RR 3.
+  // Merge duplicates on the same target, summing but capping at RR 3 (p.71).
   const merged = new Map();
   for (const entry of found) {
     const key = `${entry.skill.toLowerCase()}|${entry.specialization?.toLowerCase() ?? ""}`;

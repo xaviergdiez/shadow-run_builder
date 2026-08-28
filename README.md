@@ -208,6 +208,22 @@ narration, 2 is a light wound, 3+ is Incapacitated. This also settles the
 question the roller had deliberately left open — 1s are read off the **risk
 dice only**, never the pool.
 
+### Catalog coverage
+
+Every skill in `rules.js` now has at least one amp that can grant it Risk
+Reduction. Before the audit, seven had none — including **both Matrix skills**,
+which left deckers with nothing to buy. Three amps that appear on the Count
+Zero and Fox sheets had no catalog entry at all (Sleaze Utilities, Exploit &
+Attack Programs, Glamour Focus), so importing either runner priced them at 0.
+
+`node src/logic/derive.test.js` covers the RR parser, which had three real
+bugs: a trailing clause after the specialization discarded the whole grant
+(`RR 1 to Perception (physical) on overwatch` parsed to nothing, losing a
+book-printed RR), prose like `stacks up to RR 3 (p.71)` invented entries with
+empty skill names, and vague targets like the Mentor Spirit's "one narrow
+magical domain" became junk rows. It is now driven by the skill list: no known
+skill in the clause, no entry.
+
 ### Two things to check against your book
 
 - The spell list gives Direct damage as `DV = Hits` in one place and
