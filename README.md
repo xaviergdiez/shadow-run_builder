@@ -104,9 +104,8 @@ would quietly move the budget bar.
 
 `Description` is used as the image prompt as written, with framing appended.
 Runners built in the app instead of synced get a prompt assembled from metatype,
-concept and keywords. Generation is Gemini, downscaled to 768px JPEG before
-storage (raw PNGs base64-encode past Upstash's 1MB cap), and the image lands in
-the sheet header and prints with it.
+concept and keywords. Generation is Gemini; the image lands in the sheet header
+and prints with it.
 
 Or skip generation: **Upload instead** on the Portrait panel takes a JPEG, PNG
 or WebP, downscales it in the browser (`src/utils/image.js`) and `POST`s it to
