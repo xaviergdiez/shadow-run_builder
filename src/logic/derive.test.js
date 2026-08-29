@@ -1,6 +1,6 @@
 // node src/logic/derive.test.js
 import assert from "node:assert/strict";
-import { riskReductions, armorRating } from "./derive.js";
+import { riskReductions, armorRating, woundBoxes } from "./derive.js";
 
 const amp = (name, effects, extra = {}) => ({ name, effects, ...extra });
 
@@ -92,6 +92,27 @@ const amp = (name, effects, extra = {}) => ({ name, effects, ...extra });
   assert.equal(s[0].kind, "skill");
   assert.equal(s[0].skill, "Athletics");
   assert.equal(s[0].specialization, "parkour", "a book specialization rules.js now knows");
+}
+
+// ── Condition monitor grows with the amps that buy boxes ────────────────────
+{
+  assert.deepEqual(woundBoxes([]), { light: 1, serious: 1, incap: 1 }, "the assumed base");
+  assert.deepEqual(woundBoxes(undefined), { light: 1, serious: 1, incap: 1 }, "no amps is not an error");
+
+  assert.equal(woundBoxes([amp("Bone lacing", "+1 Serious Wound box. Unarmed DV +1.")]).serious, 2);
+  assert.equal(woundBoxes([amp("Toughness", "+1 Light Wound box.")]).light, 2);
+
+  // Boxes stack across amps, and prose order does not matter.
+  const stacked = woundBoxes([
+    amp("A", "+1 Light Wound box."),
+    amp("B", "Unarmed DV +1. +1 Light Wound box."),
+    amp("C", "+1 Serious Wound box."),
+  ]);
+  assert.deepEqual(stacked, { light: 3, serious: 2, incap: 1 });
+
+  // Nothing else in an amp's text should move the monitor.
+  assert.deepEqual(woundBoxes([amp("Nope", "Inflicts a Light Wound after using the asset.")]),
+    { light: 1, serious: 1, incap: 1 }, "taking a wound is not gaining a box");
 }
 
 console.log("derive: all assertions passed");

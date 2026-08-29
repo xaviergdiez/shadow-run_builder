@@ -10,6 +10,7 @@ import {
   riskReductions,
   unarmedDV,
   validate,
+  woundBoxes,
 } from "../logic/derive.js";
 import "./SheetView.css";
 
@@ -26,7 +27,13 @@ function rrFor(reductions, skillName, specName = null) {
   return hit?.rr ?? 0;
 }
 
-export default function SheetView({ character, spend, onRoll }) {
+const WOUND_LEVELS = [
+  { key: "light", abbr: "L", name: "Light" },
+  { key: "serious", abbr: "S", name: "Serious" },
+  { key: "incap", abbr: "I", name: "Incapacitated" },
+];
+
+export default function SheetView({ character, spend, onRoll, update }) {
   const metatype = METATYPES.find((m) => m.id === character.identity.metatype);
   const tier = TIERS.find((t) => t.id === character.tier);
   const lifestyle = LIFESTYLES.find((l) => l.id === character.identity.lifestyle);
@@ -54,6 +61,15 @@ export default function SheetView({ character, spend, onRoll }) {
       rrSpecsFor(s).length > 0 ||
       rrFor(reductions, s.name) > 0
   );
+
+  const boxes = woundBoxes(character.amps);
+  const wounds = character.wounds ?? { light: 0, serious: 0, incap: 0 };
+  const worst = [...WOUND_LEVELS].reverse().find((l) => (wounds[l.key] ?? 0) > 0);
+
+  // Clicking the box you are already on clears it, the same bargain the
+  // attribute tracks make on the Attributes step.
+  const setWound = (key, n) =>
+    update?.({ wounds: { ...wounds, [key]: (wounds[key] ?? 0) === n ? n - 1 : n } });
 
   const weapons = character.gear.filter((g) => /DV\s*\d/i.test(g.note ?? ""));
   const carried = character.gear.filter((g) => !/DV\s*\d/i.test(g.note ?? ""));
@@ -126,6 +142,27 @@ export default function SheetView({ character, spend, onRoll }) {
           <div className="sheet__attr sheet__attr--essence">
             <p className="label">Essence</p>
             <p className="sheet__attr-value num">{ess.toFixed(1)}</p>
+          </div>
+          <div className={`sheet__attr sheet__attr--wounds ${worst ? `sheet__attr--${worst.key}` : ""}`}>
+            <p className="label">{worst ? worst.name : "Wounds"}</p>
+            <div className="wounds">
+              {WOUND_LEVELS.map((level) => (
+                <div key={level.key} className="wounds__level">
+                  <span className="wounds__abbr">{level.abbr}</span>
+                  {Array.from({ length: boxes[level.key] }, (_, i) => i + 1).map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      className={`wounds__box ${n <= (wounds[level.key] ?? 0) ? "wounds__box--taken" : ""}`}
+                      aria-label={`${level.name} wound ${n} of ${boxes[level.key]}`}
+                      aria-pressed={n <= (wounds[level.key] ?? 0)}
+                      disabled={!update}
+                      onClick={() => setWound(level.key, n)}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

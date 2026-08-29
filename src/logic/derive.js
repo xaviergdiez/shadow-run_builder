@@ -1,6 +1,7 @@
 import {
   ATTRIBUTES,
   BASE_ESSENCE,
+  BASE_WOUND_BOXES,
   COSTS,
   CREATION_RR_MAX,
   FREE_SUSTAINED,
@@ -172,6 +173,28 @@ export function riskReductions(amps) {
     }
   }
   return [...merged.values()].sort((a, b) => b.rr - a.rr || a.skill.localeCompare(b.skill));
+}
+
+// Condition monitor size: the base, plus every "+1 Light Wound box" an amp
+// grants. Bone lacing, Platelet factories, Toughness and the Phoenix mentor
+// all buy boxes, so the tracker has to grow with them rather than assume three.
+const BOX_PATTERNS = {
+  light: /\+\s*(\d*)\s*Light Wound box/gi,
+  serious: /\+\s*(\d*)\s*Serious Wound box/gi,
+};
+
+export function woundBoxes(amps) {
+  const boxes = { ...BASE_WOUND_BOXES };
+  for (const amp of amps ?? []) {
+    for (const [level, pattern] of Object.entries(BOX_PATTERNS)) {
+      pattern.lastIndex = 0;
+      let m;
+      while ((m = pattern.exec(amp.effects ?? "")) !== null) {
+        boxes[level] += Number(m[1] || 1);
+      }
+    }
+  }
+  return boxes;
 }
 
 // Spells that stay up. One is free; every one after that costs a Disadvantage
