@@ -76,6 +76,7 @@ const amp = (name, effects, extra = {}) => ({ name, effects, ...extra });
   assert.equal(armorRating([{ armor: 3 }], [{ armorBonus: 1 }]), 4, "amps stack on top");
   assert.equal(armorRating([], [{ armorBonus: 1 }, { armorBonus: 1 }]), 2);
   assert.equal(armorRating([], []), 0, "no gear is 0, not -Infinity");
+  assert.equal(armorRating([{ armor: 5 }], [{ armorBonus: 3 }]), 5, "armour caps at 5");
 }
 
 // ── Attribute RR ─────────────────────────────────────────────────────────────
@@ -94,25 +95,30 @@ const amp = (name, effects, extra = {}) => ({ name, effects, ...extra });
   assert.equal(s[0].specialization, "parkour", "a book specialization rules.js now knows");
 }
 
-// ── Condition monitor grows with the amps that buy boxes ────────────────────
+// ── Condition monitor ───────────────────────────────────────────────────────
+// 2 Light + 1 Severe, per the SRA2 reference implementation. Incapacitation is
+// what happens when the Severe boxes overflow, so it is not a box itself.
 {
-  assert.deepEqual(woundBoxes([]), { light: 1, serious: 1, incap: 1 }, "the assumed base");
-  assert.deepEqual(woundBoxes(undefined), { light: 1, serious: 1, incap: 1 }, "no amps is not an error");
+  assert.deepEqual(woundBoxes([]), { light: 2, severe: 1 });
+  assert.deepEqual(woundBoxes(undefined), { light: 2, severe: 1 }, "no amps is not an error");
 
-  assert.equal(woundBoxes([amp("Bone lacing", "+1 Serious Wound box. Unarmed DV +1.")]).serious, 2);
-  assert.equal(woundBoxes([amp("Toughness", "+1 Light Wound box.")]).light, 2);
+  assert.deepEqual(woundBoxes([amp("Toughness", "+1 Light Wound box.")]), { light: 3, severe: 1 });
+  // The catalog says "Serious", the reference says "Severe" — both are the
+  // same box and both must count.
+  assert.deepEqual(woundBoxes([amp("Bone lacing", "+1 Serious Wound box. Unarmed DV +1.")]), { light: 2, severe: 2 });
+  assert.deepEqual(woundBoxes([amp("Ref", "+1 Severe Wound box.")]), { light: 2, severe: 2 });
 
-  // Boxes stack across amps, and prose order does not matter.
-  const stacked = woundBoxes([
-    amp("A", "+1 Light Wound box."),
-    amp("B", "Unarmed DV +1. +1 Light Wound box."),
-    amp("C", "+1 Serious Wound box."),
-  ]);
-  assert.deepEqual(stacked, { light: 3, serious: 2, incap: 1 });
+  assert.deepEqual(
+    woundBoxes([amp("A", "+1 Light Wound box."), amp("B", "Unarmed DV +1. +1 Light Wound box."), amp("C", "+1 Serious Wound box.")]),
+    { light: 4, severe: 2 },
+    "boxes stack across amps, prose order irrelevant"
+  );
 
-  // Nothing else in an amp's text should move the monitor.
-  assert.deepEqual(woundBoxes([amp("Nope", "Inflicts a Light Wound after using the asset.")]),
-    { light: 1, serious: 1, incap: 1 }, "taking a wound is not gaining a box");
+  assert.deepEqual(
+    woundBoxes([amp("Nope", "Inflicts a Light Wound after using the asset.")]),
+    { light: 2, severe: 1 },
+    "taking a wound is not gaining a box"
+  );
 }
 
 console.log("derive: all assertions passed");

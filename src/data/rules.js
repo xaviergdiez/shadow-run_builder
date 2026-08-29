@@ -238,11 +238,18 @@ export const DRAIN = {
 // caps it at 2. Buying past that is legal to write down and useless to roll.
 export const CREATION_RR_MAX = 2;
 
-// The condition monitor. One box at each level is the baseline this app
-// assumes — the amp list sells "+1 Light Wound box" and "+1 Serious Wound box"
-// as upgrades, which only makes sense against a base, but the preview PDF does
-// not print the base itself. Amps that grant extra boxes are parsed on top.
-export const BASE_WOUND_BOXES = { light: 1, serious: 1, incap: 1 };
+// The condition monitor. Verified against the SRA2 reference implementation
+// (VincentVk9373/sra2, src/module/config/constants.ts): a character starts with
+// two Light boxes and one Severe box, and is Incapacitated once the Severe box
+// overflows. Amps that sell "+1 Light Wound box" add on top.
+export const DAMAGE_BOX_DEFAULTS = { light: 2, severe: 1 };
+
+// Threshold step between severity levels: light -> severe is +3, light ->
+// incapacitating is +6. Already what physicalThresholds/mentalThresholds use.
+export const DAMAGE_STEP = 3;
+
+// Armour is capped at 5 in the reference implementation.
+export const ARMOR_MAX = 5;
 
 // You sustain one spell for free. The second one costs you everything else.
 export const FREE_SUSTAINED = 1;

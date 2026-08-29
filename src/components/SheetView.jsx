@@ -27,11 +27,14 @@ function rrFor(reductions, skillName, specName = null) {
   return hit?.rr ?? 0;
 }
 
-const WOUND_LEVELS = [
-  { key: "light", abbr: "L", name: "Light" },
-  { key: "serious", abbr: "S", name: "Serious" },
-  { key: "incap", abbr: "I", name: "Incapacitated" },
+// Two gauges over one track shape. The thresholds differ (physical counts
+// armour, mental does not), but the boxes are the same 2 Light / 1 Severe.
+const GAUGES = [
+  { key: "physical", name: "Physical" },
+  { key: "mental", name: "Mental" },
 ];
+
+const EMPTY_DAMAGE = { physical: { light: 0, severe: 0 }, mental: { light: 0, severe: 0 } };
 
 export default function SheetView({ character, spend, onRoll, update }) {
   const metatype = METATYPES.find((m) => m.id === character.identity.metatype);
@@ -63,13 +66,19 @@ export default function SheetView({ character, spend, onRoll, update }) {
   );
 
   const boxes = woundBoxes(character.amps);
-  const wounds = character.wounds ?? { light: 0, serious: 0, incap: 0 };
-  const worst = [...WOUND_LEVELS].reverse().find((l) => (wounds[l.key] ?? 0) > 0);
+  const damage = character.damage ?? EMPTY_DAMAGE;
+  const thresholdsFor = { physical, mental };
+  // Incapacitated the moment a gauge's Severe boxes are all full.
+  const downed = GAUGES.some((g) => (damage[g.key]?.severe ?? 0) >= boxes.severe);
 
   // Clicking the box you are already on clears it, the same bargain the
   // attribute tracks make on the Attributes step.
-  const setWound = (key, n) =>
-    update?.({ wounds: { ...wounds, [key]: (wounds[key] ?? 0) === n ? n - 1 : n } });
+  const setDamage = (gauge, level, n) => {
+    const current = damage[gauge] ?? { light: 0, severe: 0 };
+    update?.({
+      damage: { ...damage, [gauge]: { ...current, [level]: current[level] === n ? n - 1 : n } },
+    });
+  };
 
   const weapons = character.gear.filter((g) => /DV\s*\d/i.test(g.note ?? ""));
   const carried = character.gear.filter((g) => !/DV\s*\d/i.test(g.note ?? ""));
@@ -143,25 +152,41 @@ export default function SheetView({ character, spend, onRoll, update }) {
             <p className="label">Essence</p>
             <p className="sheet__attr-value num">{ess.toFixed(1)}</p>
           </div>
-          <div className={`sheet__attr sheet__attr--wounds ${worst ? `sheet__attr--${worst.key}` : ""}`}>
-            <p className="label">{worst ? worst.name : "Wounds"}</p>
-            <div className="wounds">
-              {WOUND_LEVELS.map((level) => (
-                <div key={level.key} className="wounds__level">
-                  <span className="wounds__abbr">{level.abbr}</span>
-                  {Array.from({ length: boxes[level.key] }, (_, i) => i + 1).map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      className={`wounds__box ${n <= (wounds[level.key] ?? 0) ? "wounds__box--taken" : ""}`}
-                      aria-label={`${level.name} wound ${n} of ${boxes[level.key]}`}
-                      aria-pressed={n <= (wounds[level.key] ?? 0)}
-                      disabled={!update}
-                      onClick={() => setWound(level.key, n)}
-                    />
-                  ))}
-                </div>
-              ))}
+          <div className="sheet__attr sheet__attr--armor">
+            <p className="label">Armor</p>
+            <p className="sheet__attr-value num">{armor}</p>
+          </div>
+          <div className={`sheet__monitor ${downed ? "sheet__monitor--down" : ""}`}>
+            <p className="label">{downed ? "Incapacitated" : "Condition monitor"}</p>
+            <div className="monitor">
+              {GAUGES.map((gauge) => {
+                const taken = damage[gauge.key] ?? { light: 0, severe: 0 };
+                return (
+                  <div key={gauge.key} className="monitor__gauge">
+                    <span className="monitor__name">{gauge.name}</span>
+                    <span className="monitor__thresholds num">
+                      {thresholdsFor[gauge.key].join(" / ")}
+                    </span>
+                    <div className="monitor__track">
+                      {["light", "severe"].map((level) =>
+                        Array.from({ length: boxes[level] }, (_, i) => i + 1).map((n) => (
+                          <button
+                            key={`${level}${n}`}
+                            type="button"
+                            className={`monitor__box monitor__box--${level} ${
+                              n <= taken[level] ? "monitor__box--taken" : ""
+                            }`}
+                            aria-label={`${gauge.name} ${level} wound ${n} of ${boxes[level]}`}
+                            aria-pressed={n <= taken[level]}
+                            disabled={!update}
+                            onClick={() => setDamage(gauge.key, level, n)}
+                          />
+                        ))
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

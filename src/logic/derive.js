@@ -1,7 +1,9 @@
 import {
   ATTRIBUTES,
   BASE_ESSENCE,
-  BASE_WOUND_BOXES,
+  ARMOR_MAX,
+  DAMAGE_BOX_DEFAULTS,
+  DAMAGE_STEP,
   COSTS,
   CREATION_RR_MAX,
   FREE_SUSTAINED,
@@ -75,20 +77,20 @@ export function essence(amps) {
 // 5/8/11) and the ganger blocks (STR 3 + Armor 1: 4/7/10).
 export function physicalThresholds(strength, armor = 0) {
   const base = (strength || 0) + (armor || 0);
-  return [base, base + 3, base + 6];
+  return [base, base + DAMAGE_STEP, base + DAMAGE_STEP * 2];
 }
 
 // Mental thresholds are Willpower, +3, +6. Echo WIL 3: 3/6/9.
 export function mentalThresholds(willpower) {
   const base = willpower || 0;
-  return [base, base + 3, base + 6];
+  return [base, base + DAMAGE_STEP, base + DAMAGE_STEP * 2];
 }
 
 // Highest armor rating worn, not a sum. Armor amps stack on top of it.
 export function armorRating(gear, amps) {
   const wornArmor = Math.max(0, ...gear.filter((g) => g.armor).map((g) => Number(g.armor) || 0));
   const ampArmor = sum(amps.map((a) => Number(a.armorBonus) || 0));
-  return wornArmor + ampArmor;
+  return Math.min(ARMOR_MAX, wornArmor + ampArmor);
 }
 
 // Dice pool = skill rating + linked attribute, plus 2 for a valid
@@ -175,16 +177,16 @@ export function riskReductions(amps) {
   return [...merged.values()].sort((a, b) => b.rr - a.rr || a.skill.localeCompare(b.skill));
 }
 
-// Condition monitor size: the base, plus every "+1 Light Wound box" an amp
-// grants. Bone lacing, Platelet factories, Toughness and the Phoenix mentor
-// all buy boxes, so the tracker has to grow with them rather than assume three.
+// Condition monitor size: the 2 Light / 1 Severe base, plus every box an amp
+// buys. Bone lacing, Platelet factories, Toughness and the Phoenix mentor all
+// sell boxes, so the track grows with them.
 const BOX_PATTERNS = {
   light: /\+\s*(\d*)\s*Light Wound box/gi,
-  serious: /\+\s*(\d*)\s*Serious Wound box/gi,
+  severe: /\+\s*(\d*)\s*(?:Severe|Serious) Wound box/gi,
 };
 
 export function woundBoxes(amps) {
-  const boxes = { ...BASE_WOUND_BOXES };
+  const boxes = { ...DAMAGE_BOX_DEFAULTS };
   for (const amp of amps ?? []) {
     for (const [level, pattern] of Object.entries(BOX_PATTERNS)) {
       pattern.lastIndex = 0;

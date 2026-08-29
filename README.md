@@ -286,6 +286,13 @@ Verified against the preview PDF:
   3, ork 4, troll 5.
 - **Armor** is the single highest worn rating, not a sum, plus grafted bonuses.
 - **Essence** starts at 6 and cannot go below 0.
+- **Condition monitor** is 2 Light boxes and 1 Severe box; filling the Severe
+  boxes is Incapacitated. Physical and Mental are separate gauges over the same
+  track shape. Amps that sell "+1 Light Wound box" grow it. Verified against
+  the SRA2 reference implementation
+  ([VincentVk9373/sra2](https://github.com/VincentVk9373/sra2),
+  `src/module/config/constants.ts`), which also confirms the +3 / +6 threshold
+  step and caps **armour at 5**.
 - **Risk Reduction** is parsed out of your amp effect text. Write it the way the
   book does, `RR 1 to Stealth (physical sneaking)`, and it lands on the sheet in
   the RR column. Multiple sources stack, capped at RR 3 (p.71).

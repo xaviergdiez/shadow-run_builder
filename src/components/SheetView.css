@@ -140,237 +140,99 @@
   background: rgba(169, 107, 255, 0.08);
 }
 
-/* Six attributes, Essence and Wounds fill 4x2 exactly. Wounds is the only
-   cell you touch mid-session, so it is the only interactive one. */
-.sheet__attr--wounds {
+/* Six attributes, Essence and Armor fill the first two rows; the monitor takes
+   a full-width third. It is the only thing in the band you touch mid-session,
+   so it gets room rather than being squeezed into one cell. */
+.sheet__monitor {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
   background: var(--color-void-deep);
 }
 
-.sheet__attr--wounds.sheet__attr--light .label { color: var(--color-amber); }
-.sheet__attr--wounds.sheet__attr--serious .label,
-.sheet__attr--wounds.sheet__attr--incap .label { color: var(--color-blood); }
-.sheet__attr--wounds.sheet__attr--incap {
-  background: rgba(255, 77, 94, 0.09);
+.sheet__monitor--down {
+  background: rgba(255, 77, 94, 0.1);
 }
 
-/* One row, not a stack: most runners have a single box per level, and three
-   stacked singles read as noise rather than a condition monitor. */
-.wounds {
+.sheet__monitor--down .label {
+  color: var(--color-blood);
+}
+
+.monitor {
   display: flex;
   flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-xl);
+}
+
+.monitor__gauge {
+  display: flex;
   gap: var(--space-sm);
   align-items: center;
-  justify-content: center;
 }
 
-.wounds__level {
-  display: flex;
-  gap: 3px;
-  align-items: center;
-}
-
-.wounds__abbr {
+.monitor__name {
+  min-width: 62px;
   font-family: var(--font-display);
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* Light / Severe / Incapacitating DV, so the number you compare against is
+   beside the boxes you tick rather than in a table further down. */
+.monitor__thresholds {
+  min-width: 62px;
   font-size: 11px;
-  font-weight: 600;
   color: var(--color-text-dim);
 }
 
-.wounds__box {
-  width: 24px;
-  height: 24px;
+.monitor__track {
+  display: flex;
+  gap: var(--space-2xs);
+  align-items: center;
+}
+
+/* Wide slots, not pips: a condition monitor is something you tick with a pen
+   on a printed sheet, so it should look like a row of boxes. */
+.monitor__box {
+  width: 40px;
+  height: 20px;
   padding: 0;
-  background: var(--color-panel);
+  background: transparent;
   border: 1px solid var(--color-chrome);
   border-radius: var(--radius-sm);
 }
 
-.wounds__box:hover:not(:disabled) {
-  border-color: var(--color-blood);
+.monitor__box--light.monitor__box--taken {
+  background: var(--color-amber);
+  border-color: var(--color-amber);
 }
 
-.wounds__box--taken {
+/* The Severe boxes read heavier — filling the last one is the end. */
+.monitor__box--severe {
+  width: 52px;
+  border-width: 2px;
+  border-color: var(--color-chrome-bright);
+}
+
+/* Only the first Severe box breaks from the run of Light ones, so two Severe
+   boxes still read as one group rather than two strays. */
+.monitor__box--light + .monitor__box--severe {
+  margin-left: var(--space-md);
+}
+
+.monitor__box--severe.monitor__box--taken {
   background: var(--color-blood);
   border-color: var(--color-blood);
 }
 
-.wounds__box:disabled {
+.monitor__box:hover:not(:disabled) {
+  border-color: var(--color-text);
+}
+
+.monitor__box:disabled {
   cursor: default;
-}
-
-.sheet__attr-value {
-  margin: 0;
-  font-size: 30px;
-  font-weight: 600;
-  line-height: 1;
-}
-
-.sheet__attr--essence .sheet__attr-value {
-  color: var(--color-violet);
-}
-
-.sheet__cols {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: var(--space-lg);
-}
-
-.sheet__col {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  min-width: 0;
-}
-
-.sheet__block-title {
-  margin: 0 0 var(--space-xs);
-  padding-bottom: 2px;
-  border-bottom: var(--border-hair);
-  font-size: 11px;
-  letter-spacing: var(--track-wide);
-  text-transform: uppercase;
-  color: var(--color-cyan);
-}
-
-.sheet__block--boxed {
-  padding: var(--space-sm);
-  background: var(--color-void-deep);
-  border: var(--border-hair);
-  border-radius: var(--radius-sm);
-}
-
-.sheet__empty,
-.sheet__legend {
-  margin: 0;
-  font-size: 11px;
-  color: var(--color-text-dim);
-}
-
-.sheet__prose {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--color-text-muted);
-}
-
-.sheet__table {
-  display: flex;
-  flex-direction: column;
-  font-size: 12px;
-}
-
-.sheet__thead,
-.sheet__trow {
-  display: grid;
-  gap: var(--space-sm);
-  align-items: baseline;
-  padding: 2px 0;
-}
-
-.sheet__thead {
-  border-bottom: var(--border-hair);
-  font-family: var(--font-display);
-  font-size: 9px;
-  letter-spacing: var(--track-label);
-  text-transform: uppercase;
-  color: var(--color-text-dim);
-}
-
-.sheet__table--skills .sheet__thead,
-.sheet__table--skills .sheet__trow {
-  grid-template-columns: 1fr 46px 40px 40px 34px;
-}
-
-.sheet__table--weapons .sheet__thead,
-.sheet__table--weapons .sheet__trow {
-  grid-template-columns: 1fr 1.2fr;
-}
-
-.sheet__table--wounds .sheet__thead,
-.sheet__table--wounds .sheet__trow {
-  grid-template-columns: 1fr 44px 44px 44px;
-}
-
-.sheet__table--risk .sheet__thead,
-.sheet__table--risk .sheet__trow {
-  grid-template-columns: 26px repeat(4, 1fr);
-}
-
-.sheet__table--skills .sheet__trow > *:not(:first-child),
-.sheet__table--wounds .sheet__trow > *:not(:first-child),
-.sheet__table--weapons .sheet__trow > *:not(:first-child) {
-  text-align: right;
-}
-
-.sheet__skill {
-  border-bottom: 1px dotted var(--color-chrome);
-}
-
-.sheet__trow--main {
-  color: var(--color-text);
-}
-
-.sheet__trow--spec {
-  font-size: 11px;
-  color: var(--color-text-muted);
-}
-
-/* A specialization shown only because an amp points Risk Reduction at it: the
-   attribute swap applies, the +2 does not. Dimmed so it never reads as bought. */
-.sheet__trow--unbought {
-  color: var(--color-text-dim);
-  font-style: italic;
-}
-
-.sheet__dp {
-  font-weight: 600;
-  color: var(--color-cyan);
-}
-
-.sheet__amp {
-  padding: var(--space-xs) 0;
-  border-bottom: 1px dotted var(--color-chrome);
-}
-
-.sheet__amp-head {
-  display: flex;
-  gap: var(--space-sm);
-  justify-content: space-between;
-}
-
-.sheet__amp-name {
-  font-family: var(--font-display);
-  color: var(--color-violet);
-}
-
-.sheet__amp-nums {
-  font-size: 11px;
-  color: var(--color-text-dim);
-  white-space: nowrap;
-}
-
-.sheet__amp-effects {
-  margin: 2px 0 0;
-  font-size: 11px;
-  line-height: 1.45;
-  color: var(--color-text-muted);
-}
-
-.sheet__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2xs);
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.sheet__list li::before {
-  content: "\203A  ";
-  color: var(--color-cyan-dim);
-}
-
-.sheet__list--cues li {
-  font-style: italic;
 }
 
 @media (max-width: 900px) {
@@ -412,19 +274,22 @@
 
   /* The condition monitor is the one thing on a printed sheet that gets
      written on, so the boxes have to survive the colour strip. */
-  .wounds__box {
+  .monitor__box {
     border-color: #000;
     background: #fff;
   }
 
-  .wounds__box--taken {
+  .monitor__box--taken {
     background: #000;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  .wounds__abbr,
-  .sheet__attr--wounds .label {
+  .sheet__monitor,
+  .sheet__monitor .label,
+  .monitor__name,
+  .monitor__thresholds {
+    background: #fff;
     color: #000 !important;
   }
 

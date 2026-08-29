@@ -49,7 +49,10 @@ export default function App({ charId, me }) {
   // an image to fetch, and so the URL changes when it is regenerated.
   // Wounds taken. Play state rather than build state, but it belongs to the
   // runner and the table wants it on the sheet.
-  const [wounds, setWounds] = usePersistedState("wounds", { light: 0, serious: 0, incap: 0 });
+  const [damage, setDamage] = usePersistedState("damage", {
+    physical: { light: 0, severe: 0 },
+    mental: { light: 0, severe: 0 },
+  });
   const [avatarV, setAvatarV] = usePersistedState("avatarV", 0);
   // Remembered so re-importing after editing the sheet is one click, not
   // another paste.
@@ -69,7 +72,7 @@ export default function App({ charId, me }) {
     keywords: setKeywords,
     dispositions: setDispositions,
     cues: setCues,
-    wounds: setWounds,
+    damage: setDamage,
     avatarV: setAvatarV,
     sheetSource: setSheetSource,
   };
@@ -87,7 +90,7 @@ export default function App({ charId, me }) {
     keywords,
     dispositions,
     cues,
-    wounds,
+    damage,
     avatarV,
     sheetSource,
     charId,
