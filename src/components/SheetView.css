@@ -140,9 +140,9 @@
   background: rgba(169, 107, 255, 0.08);
 }
 
-/* Six attributes, Essence and Armor fill the first two rows; the monitor takes
-   a full-width third. It is the only thing in the band you touch mid-session,
-   so it gets room rather than being squeezed into one cell. */
+/* Six attributes, Essence and Armor fill the first two rows; the condition
+   monitor takes a full-width third. It is the only thing in the band you touch
+   mid-session, so it gets room rather than being squeezed into one cell. */
 .sheet__monitor {
   grid-column: 1 / -1;
   display: flex;
@@ -179,7 +179,7 @@
   color: var(--color-text-muted);
 }
 
-/* Light / Severe / Incapacitating DV, so the number you compare against is
+/* Light / Severe / Incapacitating DV, so the number you compare against sits
    beside the boxes you tick rather than in a table further down. */
 .monitor__thresholds {
   min-width: 62px;
@@ -205,9 +205,8 @@
   transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
 }
 
-/* A filled box glows. Borrowed from the SRA2 reference, which lights its
-   damage track the same way — it makes the monitor readable in peripheral
-   vision, which is the whole job of a condition monitor. */
+/* A filled box glows, the way the SRA2 reference lights its damage track: it
+   makes the monitor readable in peripheral vision, which is its whole job. */
 .monitor__box--light.monitor__box--taken {
   background: var(--color-amber);
   border-color: var(--color-amber);
@@ -221,16 +220,16 @@
   border-color: var(--color-chrome-bright);
 }
 
-/* Only the first Severe box breaks from the run of Light ones, so two Severe
-   boxes still read as one group rather than two strays. */
-.monitor__box--light + .monitor__box--severe {
-  margin-left: var(--space-md);
-}
-
 .monitor__box--severe.monitor__box--taken {
   background: var(--color-blood);
   border-color: var(--color-blood);
   box-shadow: 0 0 10px rgba(255, 77, 94, 0.55);
+}
+
+/* Only the first Severe box breaks from the run of Light ones, so two Severe
+   boxes still read as one group rather than two strays. */
+.monitor__box--light + .monitor__box--severe {
+  margin-left: var(--space-md);
 }
 
 .monitor__box:hover:not(:disabled) {
@@ -246,6 +245,170 @@
 
 .monitor__box:disabled {
   cursor: default;
+}
+
+.sheet__cols {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--space-lg);
+}
+
+.sheet__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+.sheet__block-title {
+  margin: 0 0 var(--space-xs);
+  padding-bottom: 2px;
+  border-bottom: var(--border-hair);
+  font-size: 11px;
+  letter-spacing: var(--track-wide);
+  text-transform: uppercase;
+  color: var(--color-cyan);
+}
+
+.sheet__block--boxed {
+  padding: var(--space-sm);
+  background: var(--color-void-deep);
+  border: var(--border-hair);
+  border-radius: var(--radius-sm);
+}
+
+.sheet__empty,
+.sheet__legend {
+  margin: 0;
+  font-size: 11px;
+  color: var(--color-text-dim);
+}
+
+.sheet__prose {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.sheet__table {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+.sheet__thead,
+.sheet__trow {
+  display: grid;
+  gap: var(--space-sm);
+  align-items: baseline;
+  padding: 2px 0;
+}
+
+.sheet__thead {
+  border-bottom: var(--border-hair);
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+}
+
+.sheet__table--skills .sheet__thead,
+.sheet__table--skills .sheet__trow {
+  grid-template-columns: 1fr 46px 40px 40px 34px;
+}
+
+.sheet__table--weapons .sheet__thead,
+.sheet__table--weapons .sheet__trow {
+  grid-template-columns: 1fr 1.2fr;
+}
+
+.sheet__table--wounds .sheet__thead,
+.sheet__table--wounds .sheet__trow {
+  grid-template-columns: 1fr 44px 44px 44px;
+}
+
+.sheet__table--risk .sheet__thead,
+.sheet__table--risk .sheet__trow {
+  grid-template-columns: 26px repeat(4, 1fr);
+}
+
+.sheet__table--skills .sheet__trow > *:not(:first-child),
+.sheet__table--wounds .sheet__trow > *:not(:first-child),
+.sheet__table--weapons .sheet__trow > *:not(:first-child) {
+  text-align: right;
+}
+
+.sheet__skill {
+  border-bottom: 1px dotted var(--color-chrome);
+}
+
+.sheet__trow--main {
+  color: var(--color-text);
+}
+
+.sheet__trow--spec {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+/* A specialization shown only because an amp points Risk Reduction at it: the
+   attribute swap applies, the +2 does not. Dimmed so it never reads as bought. */
+.sheet__trow--unbought {
+  color: var(--color-text-dim);
+  font-style: italic;
+}
+
+.sheet__dp {
+  font-weight: 600;
+  color: var(--color-cyan);
+}
+
+.sheet__amp {
+  padding: var(--space-xs) 0;
+  border-bottom: 1px dotted var(--color-chrome);
+}
+
+.sheet__amp-head {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: space-between;
+}
+
+.sheet__amp-name {
+  font-family: var(--font-display);
+  color: var(--color-violet);
+}
+
+.sheet__amp-nums {
+  font-size: 11px;
+  color: var(--color-text-dim);
+  white-space: nowrap;
+}
+
+.sheet__amp-effects {
+  margin: 2px 0 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.sheet__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.sheet__list li::before {
+  content: "\203A  ";
+  color: var(--color-cyan-dim);
+}
+
+.sheet__list--cues li {
+  font-style: italic;
 }
 
 @media (max-width: 900px) {
@@ -290,6 +453,7 @@
   .monitor__box {
     border-color: #000;
     background: #fff;
+    box-shadow: none;
   }
 
   .monitor__box--taken {

@@ -361,10 +361,10 @@ Quality floor: responsive to mobile, visible keyboard focus, `prefers-reduced-mo
 respected (in `styles/global.css` — it was claimed here before it was true),
 and a print stylesheet that strips the chrome and inverts to black-on-white.
 
-Filled states glow rather than merely changing colour — damage boxes, rating
-pips, dice that hit. Taken from the SRA2 reference implementation, which lights
-its damage track the same way: it makes state readable in peripheral vision,
-which is the whole job of a condition monitor.
+The damage track is the one place that glows rather than merely changing
+colour, taken from the SRA2 reference implementation which lights its track the
+same way. It is deliberately not applied anywhere else: the burn bar is meant
+to be the only loud object on screen.
 
 ---
 
