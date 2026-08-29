@@ -144,6 +144,7 @@
   background: var(--color-cyan-dim);
   color: var(--color-text);
   font-weight: 600;
+  box-shadow: 0 0 7px rgba(53, 214, 229, 0.4);
 }
 
 /* Risk dice are visually a different currency from pool dice. */
@@ -157,6 +158,7 @@
   background: rgba(255, 77, 94, 0.18);
   color: var(--color-blood);
   font-weight: 600;
+  box-shadow: 0 0 7px rgba(255, 77, 94, 0.35);
 }
 
 .roll__sep {

@@ -232,6 +232,7 @@ textarea {
 }
 
 .track__pip {
+  transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
   flex: 1;
   min-width: 26px;
   padding: var(--space-xs) 0;
@@ -252,11 +253,13 @@ textarea {
   border-color: var(--color-amber);
   color: var(--color-void);
   font-weight: 600;
+  box-shadow: 0 0 6px rgba(240, 168, 46, 0.3);
 }
 
 .track__pip--cyan {
   background: var(--color-cyan-dim);
   border-color: var(--color-cyan);
+  box-shadow: 0 0 6px rgba(53, 214, 229, 0.3);
 }
 
 .track--sm .track__pip {
@@ -508,6 +511,10 @@ textarea {
   border-radius: var(--radius-sm);
   color: var(--color-text-muted);
   text-align: left;
+}
+
+.card {
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
 .card:hover {

@@ -358,8 +358,13 @@ figure into offset cyan and red. That is the one loud object; everything else
 stays quiet.
 
 Quality floor: responsive to mobile, visible keyboard focus, `prefers-reduced-motion`
-respected, and a print stylesheet that strips the chrome and inverts to
-black-on-white.
+respected (in `styles/global.css` — it was claimed here before it was true),
+and a print stylesheet that strips the chrome and inverts to black-on-white.
+
+Filled states glow rather than merely changing colour — damage boxes, rating
+pips, dice that hit. Taken from the SRA2 reference implementation, which lights
+its damage track the same way: it makes state readable in peripheral vision,
+which is the whole job of a condition monitor.
 
 ---
 
