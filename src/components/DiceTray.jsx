@@ -31,6 +31,16 @@ export default function DiceTray({ open, onClose }) {
 
   if (!open) return null;
 
+  // The tray stays mounted and renders null when closed, so the log would
+  // otherwise survive into the next thing you roll — stale dice from another
+  // skill, or another character. Closing is the "done with that" signal.
+  // The GM's hit threshold and risk level are deliberately kept: those hold
+  // across a scene, a handful of past rolls do not.
+  const close = () => {
+    setLog([]);
+    onClose();
+  };
+
   const risk = riskDiceFor(rr, level);
   const dice = level === "none" ? 0 : riskDice || risk.dice;
 
@@ -60,7 +70,7 @@ export default function DiceTray({ open, onClose }) {
           <p className="label">Rolling</p>
           <h2 className="tray__title">{open.label}</h2>
         </div>
-        <button type="button" className="row__remove" aria-label="Close dice tray" onClick={onClose}>
+        <button type="button" className="row__remove" aria-label="Close dice tray" onClick={close}>
           &times;
         </button>
       </header>
