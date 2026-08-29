@@ -71,7 +71,7 @@ export default function GearStep({ character, update, spend }) {
                   onChange={(e) => patch(item.instanceId, "nuyen", Number(e.target.value))}
                 />
               </label>
-              {item.source === "assumed" && <span className="assumed-tag">assumed</span>}
+              {item.source && item.source !== "book" && <span className="assumed-tag">{item.source}</span>}
               <button type="button" className="row__remove" aria-label="Remove gear" onClick={() => remove(item.instanceId)}>
                 &times;
               </button>
@@ -108,7 +108,7 @@ export default function GearStep({ character, update, spend }) {
               </div>
               <p className="card__effects">
                 {entry.note}
-                {entry.source === "assumed" && <span className="assumed-tag">assumed</span>}
+                {entry.source !== "book" && <span className="assumed-tag">{entry.source}</span>}
               </p>
             </button>
           ))}

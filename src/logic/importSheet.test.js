@@ -84,16 +84,20 @@ const FOX = {
     "an unmatched specialization has to be reported, not dropped"
   );
 
-  // Same mismatch again: the sheet files "Matrix Sneaking" under Stealth,
-  // rules.js lists it under Cracking. Reported, not guessed at.
-  assert.deepEqual(state.specializations.stealth, []);
+  // These used to be reported as mismatches. They were not: the Anarchy 2.0
+  // book files Matrix sneaking under Stealth and Matrix under Perception, so
+  // the sheet was right and rules.js was wrong. Fixed at the source.
+  assert.deepEqual(state.specializations.stealth, ["matrix sneaking"]);
+  assert.deepEqual(state.specializations.perception, ["matrix"]);
 
-  // These two do line up, and carry the +2.
   assert.deepEqual(state.specializations.rangedWeapons, ["pistols"]);
   assert.equal(dicePool(state, "rangedWeapons", "pistols"), 3 + 3 + 2);
   assert.deepEqual(state.specializations.athletics, ["ranged defense"]);
 
-  assert.equal(unmapped.length, 3, "Cracking, Matrix Sneaking, Matrix — all under the wrong skill");
+  // Cracking is genuinely a skill of its own in the book, not an Electronics
+  // specialization, so that one is still correctly reported.
+  assert.equal(unmapped.length, 1);
+  assert.match(unmapped[0].value, /Cracking/);
 
   assert.deepEqual(state.knowledge, [
     "Matrix Architecture", "Cyberdeck Hardware", "Seattle Data Havens",
@@ -113,7 +117,7 @@ const FOX = {
   assert.equal(pistol.nuyen, 500, "a catalog match brings its price");
   const coat = state.gear.find((g) => g.name === "Lined Coat");
   assert.equal(coat.armor, 2);
-  assert.equal(state.gear.find((g) => g.name === "Infiltration Kit").nuyen, 1500);
+  assert.equal(state.gear.find((g) => g.name === "Infiltration Kit").nuyen, 22_500, "book price");
 
   assert.deepEqual(state.cues, [
     "Access granted, omae.",

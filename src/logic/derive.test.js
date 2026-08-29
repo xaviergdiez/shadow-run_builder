@@ -9,11 +9,11 @@ const amp = (name, effects, extra = {}) => ({ name, effects, ...extra });
   // A trailing clause after the specialization used to swallow the whole match,
   // so this book-printed RR never reached the sheet.
   assert.deepEqual(riskReductions([amp("Fly-Spy", "RR 1 to Perception (physical) on overwatch. Passes for traffic.")]), [
-    { rr: 1, skill: "Perception", specialization: "physical", from: "Fly-Spy" },
+    { rr: 1, kind: "skill", skill: "Perception", specialization: "physical", from: "Fly-Spy" },
   ]);
 
   assert.deepEqual(riskReductions([amp("Manabolt", "Manabolt, plus RR 1 to Sorcery (combat spells) when casting it.")]), [
-    { rr: 1, skill: "Sorcery", specialization: "combat spells", from: "Manabolt" },
+    { rr: 1, kind: "skill", skill: "Sorcery", specialization: "combat spells", from: "Manabolt" },
   ]);
 
   // "up to RR 3 (p.71)" is prose about stacking, not a second grant. It used to
@@ -76,6 +76,22 @@ const amp = (name, effects, extra = {}) => ({ name, effects, ...extra });
   assert.equal(armorRating([{ armor: 3 }], [{ armorBonus: 1 }]), 4, "amps stack on top");
   assert.equal(armorRating([], [{ armorBonus: 1 }, { armorBonus: 1 }]), 2);
   assert.equal(armorRating([], []), 0, "no gear is 0, not -Infinity");
+}
+
+// ── Attribute RR ─────────────────────────────────────────────────────────────
+// The book sells RR against a whole attribute (50,000\u00A5), not just a skill.
+{
+  const r = riskReductions([amp("Muscle toner", "RR 1 Agility")]);
+  assert.equal(r.length, 1);
+  assert.equal(r[0].kind, "attribute");
+  assert.equal(r[0].skill, "Agility");
+  assert.equal(r[0].specialization, null);
+
+  // A skill named in the clause still wins over an attribute.
+  const s = riskReductions([amp("X", "RR 1 Athletics (parkour)")]);
+  assert.equal(s[0].kind, "skill");
+  assert.equal(s[0].skill, "Athletics");
+  assert.equal(s[0].specialization, "parkour", "a book specialization rules.js now knows");
 }
 
 console.log("derive: all assertions passed");

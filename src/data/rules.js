@@ -49,8 +49,7 @@ export const SKILLS = [
     specializations: [
       { name: "ranged defense", attr: "agility" },
       { name: "climbing" },
-      { name: "running" },
-    ],
+      { name: "running" },{ name: "parkour" }, { name: "swimming" }, { name: "jumping" }],
   },
   {
     key: "biotech",
@@ -64,7 +63,7 @@ export const SKILLS = [
     name: "Close Combat",
     attr: "agility",
     plane: "physical",
-    specializations: [{ name: "blades" }, { name: "clubs" }, { name: "unarmed" }],
+    specializations: [{ name: "blades" }, { name: "clubs" }, { name: "unarmed" }, { name: "firearms" }, { name: "astral combat" }],
   },
   {
     key: "conjuring",
@@ -72,7 +71,7 @@ export const SKILLS = [
     attr: "willpower",
     plane: "astral",
     requiresAwakened: true,
-    specializations: [{ name: "summoning" }, { name: "banishing" }],
+    specializations: [{ name: "summoning" }, { name: "banishing" }, { name: "spirits of air" }, { name: "spirits of water" }, { name: "spirits of earth" }, { name: "spirits of fire" }, { name: "spirits of beast" }, { name: "spirits of plant" }, { name: "spirits of kin" }, { name: "compiling" }, { name: "decompiling" }],
   },
   {
     key: "cracking",
@@ -80,21 +79,21 @@ export const SKILLS = [
     attr: "logic",
     plane: "matrix",
     requiresDeck: true,
-    specializations: [{ name: "matrix sneaking" }, { name: "cybercombat" }, { name: "matrix search" }],
+    specializations: [{ name: "matrix sneaking" }, { name: "cybercombat" }, { name: "matrix search" }, { name: "backdoor" }, { name: "brute force" }],
   },
   {
     key: "electronics",
     name: "Electronics",
     attr: "logic",
     plane: "matrix",
-    specializations: [{ name: "hardware" }, { name: "software" }],
+    specializations: [{ name: "hardware" }, { name: "software" }, { name: "matrix search" }, { name: "personal electronics" }],
   },
   {
     key: "engineering",
     name: "Engineering",
     attr: "logic",
     plane: "physical",
-    specializations: [{ name: "remotely controlled weapons" }, { name: "demolitions" }, { name: "mechanics" }],
+    specializations: [{ name: "remotely controlled weapons" }, { name: "demolitions" }, { name: "mechanics" }, { name: "electronic warfare" }, { name: "b&r" }],
   },
   {
     key: "influence",
@@ -105,29 +104,28 @@ export const SKILLS = [
       { name: "impersonation" },
       { name: "etiquette" },
       { name: "intimidation" },
-      { name: "negotiation" },
-    ],
+      { name: "negotiation" },{ name: "bluff" }, { name: "seduction" }, { name: "psychology" }, { name: "animals" }],
   },
   {
     key: "network",
     name: "Network",
     attr: "charisma",
     plane: "physical",
-    specializations: [{ name: "government" }, { name: "street" }, { name: "corporate" }],
+    specializations: [{ name: "government" }, { name: "street" }, { name: "corporate" }, { name: "criminal" }, { name: "magic" }, { name: "matrix" }, { name: "engineering" }, { name: "media" }, { name: "medical" }, { name: "academic" }],
   },
   {
     key: "perception",
     name: "Perception",
     attr: "logic",
     plane: "physical",
-    specializations: [{ name: "physical" }, { name: "social" }],
+    specializations: [{ name: "physical" }, { name: "social" }, { name: "matrix" }],
   },
   {
     key: "piloting",
     name: "Piloting",
     attr: "agility",
     plane: "physical",
-    specializations: [{ name: "bike" }, { name: "ground craft" }, { name: "aircraft" }, { name: "drones" }],
+    specializations: [{ name: "bike" }, { name: "ground craft" }, { name: "aircraft" }, { name: "drones" }, { name: "cars" }, { name: "risky maneuver" }],
   },
   {
     key: "rangedWeapons",
@@ -139,8 +137,7 @@ export const SKILLS = [
       { name: "submachine guns" },
       { name: "longarms" },
       { name: "thrown" },
-      { name: "mounted weapons" },
-    ],
+      { name: "mounted weapons" },{ name: "rifles" }, { name: "smg" }, { name: "heavy weapons" }, { name: "throwing weapons" }, { name: "grenade launcher" }],
   },
   {
     key: "sorcery",
@@ -154,22 +151,21 @@ export const SKILLS = [
       { name: "health spells" },
       { name: "illusion spells" },
       { name: "manipulation spells" },
-      { name: "counterspelling" },
-    ],
+      { name: "counterspelling" },{ name: "enchanting" }],
   },
   {
     key: "stealth",
     name: "Stealth",
     attr: "agility",
     plane: "physical",
-    specializations: [{ name: "physical sneaking" }, { name: "disguise" }, { name: "palming" }],
+    specializations: [{ name: "physical sneaking" }, { name: "disguise" }, { name: "palming" }, { name: "lockpicking" }, { name: "matrix sneaking" }],
   },
   {
     key: "survival",
     name: "Survival",
     attr: "logic",
     plane: "physical",
-    specializations: [{ name: "composure", attr: "willpower" }, { name: "navigation" }, { name: "tracking" }],
+    specializations: [{ name: "composure", attr: "willpower" }, { name: "navigation" }, { name: "tracking" }, { name: "first aid" }, { name: "wilderness" }],
   },
 ];
 
@@ -237,6 +233,10 @@ export const DRAIN = {
   critical: "Mana strain: take 1 Light Physical/Mental wound box immediately.",
   disaster: "Mana overload: Incapacitated immediately.",
 };
+
+// RR stacks, but no Test can ever apply more than 3 — and character creation
+// caps it at 2. Buying past that is legal to write down and useless to roll.
+export const CREATION_RR_MAX = 2;
 
 // You sustain one spell for free. The second one costs you everything else.
 export const FREE_SUSTAINED = 1;

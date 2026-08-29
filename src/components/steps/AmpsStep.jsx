@@ -73,7 +73,7 @@ export default function AmpsStep({ character, update, spend }) {
                   onChange={(e) => patch(amp.instanceId, "nuyen", Number(e.target.value))}
                 />
               </label>
-              {amp.source === "assumed" && <span className="assumed-tag">assumed</span>}
+              {amp.source && amp.source !== "book" && <span className="assumed-tag">{amp.source}</span>}
               <button type="button" className="row__remove" aria-label="Remove amp" onClick={() => remove(amp.instanceId)}>
                 &times;
               </button>
@@ -115,7 +115,7 @@ export default function AmpsStep({ character, update, spend }) {
                 <div className="card__meta num">
                   {entry.rating > 0 && <span>R{entry.rating}</span>}
                   {entry.essence > 0 && <span>{entry.essence} ess</span>}
-                  {entry.source === "assumed" && <span className="assumed-tag">assumed</span>}
+                  {entry.source !== "book" && <span className="assumed-tag">{entry.source}</span>}
                 </div>
                 <p className="card__effects">{entry.effects}</p>
               </button>

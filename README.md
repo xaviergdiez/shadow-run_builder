@@ -208,6 +208,28 @@ narration, 2 is a light wound, 3+ is Incapacitated. This also settles the
 question the roller had deliberately left open — 1s are read off the **risk
 dice only**, never the pool.
 
+### Source of the catalog
+
+Amps come from the **Shadowrun: Anarchy 2.0 Shadow Amps Expanded List** (Daegann,
+En.3.3b, 2026-07-11), which reproduces the core book's tables. The `source`
+field records provenance and drives the tag on every card:
+
+| `source` | Means |
+|---|---|
+| `book` | printed in the SRA2 core book (black in the PDF) — no tag |
+| `expanded` | the list author's own addition (red in the PDF) — tagged |
+| `assumed` | a figure this app guessed before the list existed — tagged |
+
+That list also corrected the app's own data. `rules.js` had the wrong
+specializations: the book files **Matrix sneaking under Stealth** and **Matrix
+under Perception**, which is exactly how the Count Zero sheet was written — the
+sheet was right and this app was wrong. 44 specializations were added and the
+import test now expects one unmapped entry instead of three.
+
+The book also sells RR against a **whole attribute** (`RR 1 Agility`, 50,000¥),
+which the parser could not see at all, and caps Risk Reduction at **RR 2 at
+character creation** (RR 3 only in play) — both now handled.
+
 ### Catalog coverage
 
 Every skill in `rules.js` now has at least one amp that can grant it Risk

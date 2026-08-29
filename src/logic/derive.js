@@ -1,4 +1,13 @@
-import { ATTRIBUTES, BASE_ESSENCE, COSTS, FREE_SUSTAINED, SKILLS, SKILL_MAX, ATTRIBUTE_MAX } from "../data/rules.js";
+import {
+  ATTRIBUTES,
+  BASE_ESSENCE,
+  COSTS,
+  CREATION_RR_MAX,
+  FREE_SUSTAINED,
+  SKILLS,
+  SKILL_MAX,
+  ATTRIBUTE_MAX,
+} from "../data/rules.js";
 
 export const nuyen = (n) => `${Math.round(n).toLocaleString("en-US")}\u00A5`;
 
@@ -125,7 +134,15 @@ function targetOf(clause) {
     // one further along belongs to some other part of the sentence.
     const after = clause.slice(at + skill.name.length);
     const spec = after.match(/^\s*\(([^)]+)\)/)?.[1]?.trim() ?? null;
-    return { skill: skill.name, specialization: spec };
+    return { kind: "skill", skill: skill.name, specialization: spec };
+  }
+  // The book also sells RR against a whole attribute ("Risk management
+  // (attribute)", 50,000\u00A5) — "RR 1 Agility", "RR 1 Logic". Those apply to
+  // every Test using that attribute, so they are not a skill row.
+  for (const attr of ATTRIBUTES) {
+    if (new RegExp(`\\b${attr.name}\\b`, "i").test(clause)) {
+      return { kind: "attribute", skill: attr.name, specialization: null };
+    }
   }
   return null;
 }
@@ -216,6 +233,16 @@ export function validate(character) {
     issues.push({
       level: "warn",
       text: "Spells are cast with Sorcery, which needs an Awakened amp to roll at all (p.64).",
+    });
+  }
+
+  const overCap = riskReductions(character.amps).filter((r) => r.rr > CREATION_RR_MAX);
+  if (overCap.length > 0) {
+    issues.push({
+      level: "warn",
+      text: `RR ${overCap[0].rr} on ${overCap[0].skill}${
+        overCap[0].specialization ? ` (${overCap[0].specialization})` : ""
+      }. Character creation caps Risk Reduction at ${CREATION_RR_MAX}; RR 3 is reachable only in play (p.3).`,
     });
   }
 
