@@ -76,15 +76,6 @@ export default function SheetView({ character, spend, onRoll }) {
       )}
 
       <header className="sheet__head">
-        {/* The portrait is a header cell rather than a floated image so the
-            name block reflows beside it and the print layout keeps one row. */}
-        {character.avatarV > 0 && (
-          <img
-            className="sheet__portrait"
-            src={`/api/avatar?c=${character.charId}&v=${character.avatarV}`}
-            alt={`Portrait of ${character.identity.streetName || "this runner"}`}
-          />
-        )}
         <div className="sheet__head-name">
           <p className="label">Street name</p>
           <h1 className="sheet__name">{character.identity.streetName || "Unnamed"}</h1>
@@ -108,16 +99,34 @@ export default function SheetView({ character, spend, onRoll }) {
         </div>
       </header>
 
-      <section className="sheet__attrs">
-        {ATTRIBUTES.map((attr) => (
-          <div key={attr.key} className="sheet__attr">
-            <p className="label">{attr.abbr}</p>
-            <p className="sheet__attr-value num">{character.attributes[attr.key]}</p>
+      {/* Portrait and attributes are one band: the face and the numbers are what
+          you look at first, and pairing them lets the portrait be large enough
+          to actually read across a table. Without a portrait the attributes
+          simply take the full width. */}
+      <section className={`sheet__identity ${character.avatarV > 0 ? "sheet__identity--portrait" : ""}`}>
+        {character.avatarV > 0 && (
+          /* A clipping frame rather than a bare <img>: stretched to the band's
+             height, an image would otherwise impose its own aspect ratio and
+             drag the whole row taller than the attributes beside it. */
+          <div className="sheet__portrait-frame">
+            <img
+              className="sheet__portrait"
+              src={`/api/avatar?c=${character.charId}&v=${character.avatarV}`}
+              alt={`Portrait of ${character.identity.streetName || "this runner"}`}
+            />
           </div>
-        ))}
-        <div className="sheet__attr sheet__attr--essence">
-          <p className="label">Essence</p>
-          <p className="sheet__attr-value num">{ess.toFixed(1)}</p>
+        )}
+        <div className="sheet__attrs">
+          {ATTRIBUTES.map((attr) => (
+            <div key={attr.key} className="sheet__attr">
+              <p className="label">{attr.abbr}</p>
+              <p className="sheet__attr-value num">{character.attributes[attr.key]}</p>
+            </div>
+          ))}
+          <div className="sheet__attr sheet__attr--essence">
+            <p className="label">Essence</p>
+            <p className="sheet__attr-value num">{ess.toFixed(1)}</p>
+          </div>
         </div>
       </section>
 

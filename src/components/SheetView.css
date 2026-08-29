@@ -43,19 +43,7 @@
   border-bottom: 2px solid var(--color-amber-dim);
 }
 
-/* Fixed height, auto width: portraits come back portrait-orientation but the
-   model is not strict about it, so the header row is what stays constant. */
-.sheet__portrait {
-  height: 104px;
-  width: auto;
-  max-width: 104px;
-  object-fit: cover;
-  border: 1px solid var(--color-chrome);
-  border-radius: var(--radius-sm);
-}
-
-/* Takes the slack so the build stamp stays hard right whether or not there is
-   a portrait. */
+/* Takes the slack so the build stamp stays hard right. */
 .sheet__head-name {
   flex: 1;
   min-width: 200px;
@@ -91,28 +79,75 @@
   color: var(--color-text-dim);
 }
 
+/* ---- Portrait + attributes band ------------------------------------------- */
+
+.sheet__identity {
+  display: flex;
+  gap: var(--space-md);
+  align-items: stretch;
+  /* The band's height is what makes the portrait readable across a table.
+     Left to itself the attribute grid would set it, and six short cells are
+     not tall enough for a face to carry. */
+  min-height: 248px;
+}
+
+/* Fixed width, stretched height: the portrait squares off against the
+   attribute grid so the band reads as one object rather than an image parked
+   next to a table. */
+.sheet__portrait-frame {
+  /* The image is taken out of flow so it cannot feed its intrinsic height back
+     into the frame — otherwise a tall portrait stretches the whole band. */
+  position: relative;
+  width: 264px;
+  flex-shrink: 0;
+  align-self: stretch;
+  overflow: hidden;
+  border: var(--border-hair);
+  border-radius: var(--radius-sm);
+}
+
+.sheet__portrait {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Portraits come back full-body; bias the crop upward so the face survives. */
+  object-position: center 22%;
+}
+
 .sheet__attrs {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  flex: 1;
+  grid-template-columns: repeat(4, 1fr);
   gap: 1px;
   background: var(--color-chrome);
   border: var(--border-hair);
 }
 
 .sheet__attr {
-  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2xs);
+  padding: var(--space-md) var(--space-sm);
   background: var(--color-void-deep);
   text-align: center;
 }
 
+/* Seven cells in four columns leaves one gap; Essence fills it, which suits
+   the one figure on this sheet that only ever goes down. */
 .sheet__attr--essence {
+  grid-column: span 2;
   background: rgba(169, 107, 255, 0.08);
 }
 
 .sheet__attr-value {
   margin: 0;
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 600;
+  line-height: 1;
 }
 
 .sheet__attr--essence .sheet__attr-value {
@@ -288,8 +323,13 @@
     grid-template-columns: 1fr;
   }
 
-  .sheet__attrs {
-    grid-template-columns: repeat(4, 1fr);
+  .sheet__identity {
+    flex-direction: column;
+  }
+
+  .sheet__portrait-frame {
+    width: 100%;
+    height: 300px;
   }
 }
 
