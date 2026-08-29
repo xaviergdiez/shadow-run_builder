@@ -43,6 +43,7 @@
 }
 
 .tray__roll {
+  transition: background 120ms ease, box-shadow 120ms ease;
   border-color: var(--color-cyan);
   color: var(--color-cyan);
   padding: var(--space-xs) var(--space-xl);
@@ -126,6 +127,7 @@
 }
 
 .die {
+  transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -144,6 +146,7 @@
   background: var(--color-cyan-dim);
   color: var(--color-text);
   font-weight: 600;
+  box-shadow: 0 0 7px rgba(53, 214, 229, 0.4);
 }
 
 /* Risk dice are visually a different currency from pool dice. */
@@ -151,12 +154,15 @@
   border-style: dashed;
 }
 
+/* The 1s are what you scan a risk roll for, so they carry the loudest glow
+   in the tray. */
 .die--one {
   border-style: solid;
   border-color: var(--color-blood);
   background: rgba(255, 77, 94, 0.18);
   color: var(--color-blood);
   font-weight: 600;
+  box-shadow: 0 0 8px rgba(255, 77, 94, 0.4);
 }
 
 .roll__sep {

@@ -94,6 +94,7 @@ textarea {
 }
 
 .tier {
+  transition: border-color 120ms ease, box-shadow 120ms ease, color 120ms ease;
   display: flex;
   flex-direction: column;
   gap: var(--space-2xs);
@@ -139,6 +140,7 @@ textarea {
 }
 
 .metatype {
+  transition: border-color 120ms ease, color 120ms ease;
   display: flex;
   gap: var(--space-sm);
   align-items: baseline;
@@ -232,6 +234,7 @@ textarea {
 }
 
 .track__pip {
+  transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease, color 120ms ease;
   flex: 1;
   min-width: 26px;
   padding: var(--space-xs) 0;
@@ -247,16 +250,20 @@ textarea {
   color: var(--color-text);
 }
 
+/* A bought point glows in its category colour. Same reasoning as the damage
+   track: you read a rating track by its lit length, not by counting. */
 .track__pip--on {
   background: var(--color-amber-dim);
   border-color: var(--color-amber);
   color: var(--color-void);
   font-weight: 600;
+  box-shadow: 0 0 6px rgba(240, 168, 46, 0.3);
 }
 
 .track__pip--cyan {
   background: var(--color-cyan-dim);
   border-color: var(--color-cyan);
+  box-shadow: 0 0 6px rgba(53, 214, 229, 0.3);
 }
 
 .track--sm .track__pip {
@@ -318,6 +325,7 @@ textarea {
 }
 
 .spec {
+  transition: border-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
   display: flex;
   gap: var(--space-xs);
   align-items: baseline;
@@ -338,6 +346,7 @@ textarea {
   border-style: solid;
   border-color: var(--color-cyan);
   color: var(--color-cyan);
+  box-shadow: 0 0 6px rgba(53, 214, 229, 0.22);
 }
 
 .spec__pool {
@@ -386,6 +395,7 @@ textarea {
 }
 
 .chip {
+  transition: border-color 120ms ease, color 120ms ease;
   padding: 2px var(--space-xs);
   background: transparent;
   border: 1px dashed var(--color-chrome);
@@ -510,9 +520,13 @@ textarea {
   text-align: left;
 }
 
+.card {
+  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
 .card:hover {
   border-color: var(--color-violet);
-  box-shadow: 0 0 10px rgba(169, 107, 255, 0.2);
+  box-shadow: 0 0 12px rgba(169, 107, 255, 0.28);
 }
 
 .card__head {

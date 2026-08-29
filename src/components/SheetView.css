@@ -484,6 +484,7 @@
 .sheet__trow--rollable {
   cursor: pointer;
   border-radius: var(--radius-sm);
+  transition: background 120ms ease, box-shadow 120ms ease;
 }
 
 .sheet__trow--rollable:hover {

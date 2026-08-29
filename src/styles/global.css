@@ -92,6 +92,7 @@ ul {
 }
 
 .ghost-button {
+  transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
   padding: var(--space-xs) var(--space-md);
   border: var(--border-hair);
   border-radius: var(--radius-sm);
@@ -143,5 +144,15 @@ ul {
     background: #fff;
     background-image: none;
     color: #000;
+  }
+
+  /* Glow is a screen affordance. On paper it is either invisible or a smudge,
+     so it comes off everywhere — filled damage boxes keep their fill via
+     print-color-adjust in SheetView.css. */
+  *,
+  *::before,
+  *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
   }
 }

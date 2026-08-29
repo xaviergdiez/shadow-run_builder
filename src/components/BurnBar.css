@@ -83,11 +83,16 @@
 
 .burn__value--good {
   color: var(--color-amber);
+  text-shadow: 0 0 14px rgba(240, 168, 46, 0.35);
 }
 
 .burn__value--glitch,
 .burn__figure--over .label {
   color: var(--color-blood);
+}
+
+.burn__value--glitch {
+  text-shadow: 0 0 14px rgba(255, 77, 94, 0.45);
 }
 
 .burn__value--low {
